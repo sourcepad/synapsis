@@ -4,6 +4,7 @@ require "faraday"
 # Internal dependencies
 
 require "./lib/synapsis/version"
+require "./lib/synapsis/utilities"
 require "./lib/synapsis/user"
 
 module Synapsis

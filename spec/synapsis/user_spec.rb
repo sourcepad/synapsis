@@ -18,15 +18,13 @@ RSpec.describe Synapsis::User do
   it 'builds' do
     result = '{"email":"test5@synapsepay.com","fullname":"Test Account","ip_address":"11.111.11.11","phonenumber":"123456789","client_id":"ce65d5ce9116ae4c77bb","client_secret":"41877da204b32dbee3095033069ed81bcf512154"}'
 
-    paramz = {
+    user_params = {
       email: 'test5@synapsepay.com',
       fullname: 'Test Account',
       ip_address: '11.111.11.11',
       phonenumber: '123456789'
     }
 
-    expect(
-      Synapsis::User.build_json_from_params(paramz)
-    ).to eq result
+    expect(Synapsis::User.new(user_params).build_json_from_params(user_params)).to eq result
   end
 end
