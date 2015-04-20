@@ -5,6 +5,7 @@ require "faraday"
 
 require "./lib/synapsis/version"
 require "./lib/synapsis/utilities"
+require "./lib/synapsis/authentication"
 require "./lib/synapsis/user"
 
 module Synapsis
@@ -21,9 +22,9 @@ module Synapsis
 
     def synapse_url
       if environment == 'production'
-        'https://synapsepay.com/api/v2'
+        'https://synapsepay.com/'
       else
-        'https://sandbox.synapsepay.com/api/v2'
+        'https://sandbox.synapsepay.com/'
       end
     end
 
