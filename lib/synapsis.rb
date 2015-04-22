@@ -7,6 +7,7 @@ require "./lib/synapsis/version"
 require "./lib/synapsis/utilities"
 require "./lib/synapsis/authentication"
 require "./lib/synapsis/user"
+require "./lib/synapsis/bank"
 
 module Synapsis
   class << self
