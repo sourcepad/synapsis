@@ -6,6 +6,9 @@ require 'pry'
 # Require Initializers, bootstrap, models
 require './lib/synapsis'
 
+# Require helpers
+Dir["./spec/support/**/*.rb"].each { |f| require f }
+
 config_vars = YAML.load_file('./spec/config.yml')
 
 Synapsis.configure do |config|
@@ -16,4 +19,5 @@ end
 
 RSpec.configure do |config|
   config.order = 'random'
+  config.include JsonHelpers
 end
