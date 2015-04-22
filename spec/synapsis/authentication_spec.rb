@@ -3,7 +3,6 @@ require 'spec_helper'
 RSpec.describe Synapsis::Authentication do
   it 'connects' do
     authentication_params = {
-      # username: 'natalia@zulaufboyer.name',
       username: 'b84b8c816c0541f09ea9fbd7c5d8e4',
       password: '5ourcep4d'
     }

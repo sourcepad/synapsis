@@ -1,8 +1,6 @@
 class Synapsis::Bank
   include Synapsis::Utilities
 
-  ADD_BANK_URL = "#{API_V2_PATH}bank/add/"
-
   attr_accessor :fullname,
     :account_num,
     :routing_num,
@@ -24,7 +22,7 @@ class Synapsis::Bank
   def add
     Synapsis.connection.post do |req|
       req.headers['Content-Type'] = 'application/json'
-      req.url ADD_BANK_URL
+      req.url "#{API_V2_PATH}bank/add/"
       req.body = build_json_from_variable_hash
     end
   end

@@ -57,7 +57,6 @@ class Synapsis::User
 
   def update_attributes(synapse_response)
     parsed_response = JSON.parse(synapse_response.body)
-    @fullname =  parsed_response['fullname']
     @access_token =  parsed_response['access_token']
     @refresh_token =  parsed_response['refresh_token']
     @username =  parsed_response['username']

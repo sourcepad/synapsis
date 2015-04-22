@@ -2,13 +2,25 @@ require 'spec_helper'
 
 RSpec.describe Synapsis::Bank do
   context '#add' do
-    it 'connects' do
+    it 'adds a bank account' do
+
+      # We need to create a user because Synapse limits bank accounts to 5 per user.
+      user_params = {
+        email: Faker::Internet.email,
+        fullname: Faker::Name.name,
+        phonenumber: Faker::PhoneNumber.phone_number,
+        password: '5ourcep4d',
+        ip_address: '8.8.8.8'
+      }
+
+      new_user = Synapsis::User.create(user_params)
+
       bank_params = {
-        fullname: 'Lori Mcclure',
+        fullname: new_user.fullname,
         account_num: '1111111112',
         routing_num: '121000358',
         nickname: 'Sourcepad Bank',
-        oauth_consumer_key: 'c7eda20ff7b2554c0bed2ad596ac5dfeb33124e1',
+        oauth_consumer_key: new_user.access_token,
         account_type: '1',
         account_class: '1'
       }
