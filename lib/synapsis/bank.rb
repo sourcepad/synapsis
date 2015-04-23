@@ -34,11 +34,13 @@ class Synapsis::Bank
   end
 
   def add
-    Synapsis.connection.post do |req|
+    added_bank = Synapsis.connection.post do |req|
       req.headers['Content-Type'] = 'application/json'
       req.url "#{API_V2_PATH}bank/add/"
       req.body = build_json_from_variable_hash
     end
+
+    return Synapsis::RetrievedBank.new(added_bank)
   end
 
   def link
@@ -91,8 +93,14 @@ class Synapsis::Bank
     def initialize(synapse_response)
       parsed_response = JSON.parse(synapse_response.body)
 
-      parsed_response['banks'].first.each do |k, v|
-        send("#{k}=", v)
+      if parsed_response['banks']
+        parsed_response['banks'].first.each do |k, v|
+          send("#{k}=", v)
+        end
+      elsif parsed_response['bank']
+        parsed_response['bank'].each do |k, v|
+          send("#{k}=", v)
+        end
       end
     end
   end

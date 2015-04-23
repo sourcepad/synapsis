@@ -25,10 +25,11 @@ RSpec.describe Synapsis::Bank do
         account_class: '1'
       }
 
-      response = Synapsis::Bank.add(bank_params)
+      new_bank = Synapsis::Bank.add(bank_params)
 
-      expect(JSON.parse(response.body)['bank']['name_on_account']).to eq bank_params[:fullname]
-      expect(JSON.parse(response.body)['bank']['nickname']).to eq bank_params[:nickname]
+      expect(new_bank.is_active).to eq true
+      expect(new_bank.name_on_account).to eq user_params[:fullname]
+      expect(new_bank.nickname).to eq bank_params[:nickname]
     end
   end
 
