@@ -31,4 +31,33 @@ RSpec.describe Synapsis::Bank do
       expect(JSON.parse(response.body)['bank']['nickname']).to eq bank_params[:nickname]
     end
   end
+
+  context '#link' do
+    it 'adds a bank account' do
+      user_params = {
+        email: Faker::Internet.email,
+        fullname: Faker::Name.name,
+        phonenumber: Faker::PhoneNumber.phone_number,
+        password: '5ourcep4d',
+        ip_address: '8.8.8.8'
+      }
+
+      new_user = Synapsis::User.create(user_params)
+
+      bank_params = {
+        username: 'synapse_good',
+        password: 'test1234',
+        pin: '1234',
+        oauth_consumer_key: new_user.access_token,
+        bank: 'Wells Fargo',
+        mfa: 'test_answer'
+      }
+
+      new_bank = Synapsis::Bank.link(bank_params)
+
+      expect(new_bank.is_active).to eq true
+      expect(new_bank.name_on_account).to eq user_params[:fullname]
+      expect(new_bank.bank_name).to eq bank_params[:bank]
+    end
+  end
 end
