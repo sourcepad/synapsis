@@ -3,11 +3,11 @@ require "faraday"
 
 # Internal dependencies
 
-require "./lib/synapsis/version"
-require "./lib/synapsis/utilities"
-require "./lib/synapsis/authentication"
-require "./lib/synapsis/user"
-require "./lib/synapsis/bank"
+require "synapsis/version"
+require "synapsis/utilities"
+require "synapsis/authentication"
+require "synapsis/user"
+require "synapsis/bank"
 
 module Synapsis
   class << self
