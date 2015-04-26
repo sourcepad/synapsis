@@ -3,9 +3,11 @@ require 'spec_helper'
 RSpec.describe Synapsis::User do
   describe '#create' do
     it 'creates a user account and returns the SynapsePay username, access_token and refresh_token' do
+      user_email = Faker::Internet.email
+
       user_params = {
-        email: Faker::Internet.email,
-        fullname: Faker::Name.name,
+        email: user_email,
+        fullname: user_email,
         phonenumber: Faker::PhoneNumber.phone_number,
         password: '5ourcep4d',
         ip_address: '8.8.8.8'

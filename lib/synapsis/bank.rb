@@ -1,6 +1,16 @@
 class Synapsis::Bank
   include Synapsis::Utilities
 
+  module AccountClass
+    PERSONAL = 1
+    BUSINESS = 2
+  end
+
+  module AccountType
+    CHECKING = 1
+    SAVINGS = 2
+  end
+
   attr_accessor :account_class,
     :account_num,
     :account_type,

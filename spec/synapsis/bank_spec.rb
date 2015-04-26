@@ -1,9 +1,18 @@
 require 'spec_helper'
 
 RSpec.describe Synapsis::Bank do
+  context 'namespacing' do
+    it 'has a namespace for both AccountClass and AccountType' do
+      expect(Synapsis::Bank::AccountClass::PERSONAL).to eq 1
+      expect(Synapsis::Bank::AccountClass::BUSINESS).to eq 2
+
+      expect(Synapsis::Bank::AccountType::CHECKING).to eq 1
+      expect(Synapsis::Bank::AccountType::SAVINGS).to eq 2
+    end
+  end
+
   context '#add' do
     it 'adds a bank account' do
-
       # We need to create a user because Synapse limits bank accounts to 5 per user.
       user_params = {
         email: Faker::Internet.email,
@@ -21,8 +30,8 @@ RSpec.describe Synapsis::Bank do
         routing_num: '121000358',
         nickname: 'Sourcepad Bank',
         oauth_consumer_key: new_user.access_token,
-        account_type: '1',
-        account_class: '1'
+        account_type: Synapsis::Bank::AccountType::CHECKING,
+        account_class: Synapsis::Bank::AccountClass::PERSONAL
       }
 
       new_bank = Synapsis::Bank.add(bank_params)
