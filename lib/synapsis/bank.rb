@@ -50,7 +50,11 @@ class Synapsis::Bank
       req.body = build_json_from_variable_hash
     end
 
-    return Synapsis::RetrievedBank.new(added_bank)
+    if JSON.parse(added_bank.body)['success']
+      Synapsis::RetrievedBank.new(added_bank)
+    else
+      Synapsis::Error.new(JSON.parse(added_bank.body))
+    end
   end
 
   def link

@@ -8,6 +8,7 @@ require "synapsis/utilities"
 require "synapsis/authentication"
 require "synapsis/user"
 require "synapsis/bank"
+require "synapsis/error"
 
 module Synapsis
   class << self
