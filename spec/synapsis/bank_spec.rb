@@ -98,4 +98,34 @@ RSpec.describe Synapsis::Bank do
       expect(new_bank.bank_name).to eq bank_params[:bank]
     end
   end
+
+  context '#remove' do
+    it 'removes the bank' do
+      user_params = {
+        email: Faker::Internet.email,
+        fullname: Faker::Name.name,
+        phonenumber: Faker::PhoneNumber.phone_number,
+        password: '5ourcep4d',
+        ip_address: '8.8.8.8'
+      }
+
+      new_user = Synapsis::User.create(user_params)
+
+      bank_params = {
+        fullname: new_user.fullname,
+        account_num: '1111111112',
+        routing_num: '121000358',
+        nickname: 'Sourcepad Bank',
+        oauth_consumer_key: new_user.access_token,
+        account_type: Synapsis::Bank::AccountType::CHECKING,
+        account_class: Synapsis::Bank::AccountClass::PERSONAL
+      }
+
+      new_bank = Synapsis::Bank.add(bank_params)
+
+      removed_bank = Synapsis::Bank.remove(new_bank.id, new_user.access_token)
+
+      expect(JSON.parse(removed_bank.body)['success']).to eq true
+    end
+  end
 end

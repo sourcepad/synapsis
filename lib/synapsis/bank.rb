@@ -75,6 +75,17 @@ class Synapsis::Bank
     return Synapsis::RetrievedBank.new(new_bank)
   end
 
+  def self.remove(bank_id, oauth_consumer_key)
+    return Synapsis.connection.post do |req|
+      req.headers['Content-Type'] = 'application/json'
+      req.url "#{API_V2_PATH}bank/delete/"
+      req.body = JSON.generate(
+        bank_id: bank_id,
+        oauth_consumer_key: oauth_consumer_key
+      )
+    end
+  end
+
   def view_linked_banks
     Synapsis.connection.post do |req|
       req.headers['Content-Type'] = 'application/json'
@@ -82,39 +93,39 @@ class Synapsis::Bank
       req.body = build_json_from_variable_hash
     end
   end
+end
 
-  class Synapsis::RetrievedBank
-    attr_accessor :account_class,
-      :account_number_string,
-      :account_type,
-      :address,
-      :balance,
-      :bank_name,
-      :date,
-      :email,
-      :id,
-      :is_active,
-      :is_buyer_default,
-      :is_seller_default,
-      :is_verified,
-      :mfa_verifed,
-      :name_on_account,
-      :nickname,
-      :phone_number,
-      :resource_uri,
-      :routing_number_string
+class Synapsis::RetrievedBank
+  attr_accessor :account_class,
+    :account_number_string,
+    :account_type,
+    :address,
+    :balance,
+    :bank_name,
+    :date,
+    :email,
+    :id,
+    :is_active,
+    :is_buyer_default,
+    :is_seller_default,
+    :is_verified,
+    :mfa_verifed,
+    :name_on_account,
+    :nickname,
+    :phone_number,
+    :resource_uri,
+    :routing_number_string
 
-    def initialize(synapse_response)
-      parsed_response = JSON.parse(synapse_response.body)
+  def initialize(synapse_response)
+    parsed_response = JSON.parse(synapse_response.body)
 
-      if parsed_response['banks']
-        parsed_response['banks'].first.each do |k, v|
-          send("#{k}=", v)
-        end
-      elsif parsed_response['bank']
-        parsed_response['bank'].each do |k, v|
-          send("#{k}=", v)
-        end
+    if parsed_response['banks']
+      parsed_response['banks'].first.each do |k, v|
+        send("#{k}=", v)
+      end
+    elsif parsed_response['bank']
+      parsed_response['bank'].each do |k, v|
+        send("#{k}=", v)
       end
     end
   end
