@@ -21,6 +21,46 @@ RSpec.describe Synapsis::User do
       expect(new_synapse_user.access_token).to be_a_kind_of String
       expect(new_synapse_user.refresh_token).to be_a_kind_of String
     end
+
+    it 'returns an error if the params are bad' do
+      user_params = {
+        email: "1",
+        fullname: "",
+        phonenumber: Faker::PhoneNumber.phone_number,
+        password: '5ourcep4d',
+        ip_address: '8.8.8.8'
+      }
+
+      new_synapse_user = Synapsis::User.create(user_params)
+
+      expect(new_synapse_user).to be_a_kind_of Synapsis::Error
+    end
+  end
+
+  describe '#edit' do
+    it 'edits the user' do
+      oauth_token = 'c7eda20ff7b2554c0bed2ad596ac5dfeb33124e1'
+      edit_user_attributes = {
+        'fullname' => Faker::Name.name,
+        'oauth_consumer_key' => oauth_token
+      }
+
+      edited_user = Synapsis::User.edit(edit_user_attributes)
+
+      expect(edited_user.fullname).to eq edit_user_attributes['fullname']
+    end
+
+    it 'returns an error if the update didnt work' do
+      oauth_token = 'WRONG_OAUTH_TOKEN'
+      edit_user_attributes = {
+        'fullname' => Faker::Name.name,
+        'oauth_consumer_key' => oauth_token
+      }
+
+      response = Synapsis::User.edit(edit_user_attributes)
+
+      expect(response.reason).to be_a_kind_of String
+    end
   end
 
   describe '#view' do

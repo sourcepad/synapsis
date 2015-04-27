@@ -14,6 +14,10 @@ class Synapsis::User
     self.new(params).create
   end
 
+  def self.edit(params)
+    self.new({}).edit(params)
+  end
+
   def self.view(params)
     self.new({}).view(params)
   end
@@ -31,11 +35,27 @@ class Synapsis::User
       req.body = build_json_from_params
     end
 
-    if response.success?
+    if JSON.parse(response.body)['success']
       update_attributes(response)
       return self
     else
-      return response
+      return Synapsis::Error.new(JSON.parse(response.body))
+    end
+  end
+
+  def edit(params)
+    response = Synapsis.connection.post do |req|
+      req.headers['Content-Type'] = 'application/json'
+      req.url "#{API_V2_PATH}user/edit/"
+      req.body = JSON.generate(params)
+    end
+
+
+    if JSON.parse(response.body)['success']
+      update_attributes(response)
+      return self
+    else
+      return Synapsis::Error.new(JSON.parse(response.body))
     end
   end
 
@@ -60,6 +80,10 @@ class Synapsis::User
     @access_token =  parsed_response['access_token']
     @refresh_token =  parsed_response['refresh_token']
     @username =  parsed_response['username']
+
+    if parsed_response['user']
+      @fullname =  parsed_response['user']['fullname']
+    end
   end
 
   class Synapsis::RetrievedUser
