@@ -72,7 +72,11 @@ class Synapsis::Bank
       req.body = build_json_from_variable_hash
     end
 
-    return Synapsis::RetrievedBank.new(new_bank)
+    if JSON.parse(new_bank.body)['success']
+      Synapsis::RetrievedBank.new(new_bank)
+    else
+      Synapsis::Error.new(JSON.parse(new_bank.body))
+    end
   end
 
   def self.remove(bank_id, oauth_consumer_key)
