@@ -64,8 +64,14 @@ class Synapsis::Bank
       req.body = build_json_from_variable_hash
     end
 
-    if JSON.parse(partially_linked_bank.body)['success']
-      @access_token = JSON.parse(partially_linked_bank.body)['response']['access_token']
+    parsed_partially_linked_bank = JSON.parse(partially_linked_bank.body)
+
+    if parsed_partially_linked_bank['success']
+      if parsed_partially_linked_bank['banks'] # This happens if the added bank has no MFA
+        return Synapsis::RetrievedBank.new(partially_linked_bank)
+      end
+
+      @access_token = parsed_partially_linked_bank['response']['access_token']
 
       new_bank =  Synapsis.connection.post do |req|
         req.headers['Content-Type'] = 'application/json'

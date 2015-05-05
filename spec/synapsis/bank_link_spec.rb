@@ -11,21 +11,23 @@ RSpec.describe Synapsis::Bank do
     }}
 
     context 'question-based MFA' do
-      it 'adds a bank account' do
-        new_user = Synapsis::User.create(user_params)
+      context 'happy path' do
+        it 'adds a bank account' do
+          new_user = Synapsis::User.create(user_params)
 
-        bank_params = {
-          username: 'synapse_good',
-          password: 'test1234',
-          oauth_consumer_key: new_user.access_token,
-          bank: 'PNC',
-          mfa: 'test_answer'
-        }
+          bank_params = {
+            username: 'synapse_good',
+            password: 'test1234',
+            oauth_consumer_key: new_user.access_token,
+            bank: 'PNC',
+            mfa: 'test_answer'
+          }
 
-        new_bank = Synapsis::Bank.link(bank_params)
+          new_bank = Synapsis::Bank.link(bank_params)
 
-        expect(new_bank.name_on_account).to eq user_params[:fullname]
-        expect(new_bank.bank_name).to eq bank_params[:bank]
+          expect(new_bank.name_on_account).to eq user_params[:fullname]
+          expect(new_bank.bank_name).to eq bank_params[:bank]
+        end
       end
 
       context 'errors' do
@@ -92,6 +94,151 @@ RSpec.describe Synapsis::Bank do
             oauth_consumer_key: new_user.access_token,
             bank: 'USAA',
             mfa: 'test_answer'
+          }
+
+          new_bank = Synapsis::Bank.link(bank_params)
+
+          expect(new_bank.class).to eq Synapsis::Error
+          expect(new_bank.reason).to be_a_kind_of String
+        end
+      end
+    end
+
+    context 'code-based MFA' do
+      it 'adds a bank account' do
+        new_user = Synapsis::User.create(user_params)
+
+        bank_params = {
+          username: 'synapse_code',
+          password: 'test1234',
+          oauth_consumer_key: new_user.access_token,
+          bank: 'Ally',
+          mfa: 'test_answer'
+        }
+
+        new_bank = Synapsis::Bank.link(bank_params)
+
+        expect(new_bank.name_on_account).to eq user_params[:fullname]
+        expect(new_bank.bank_name).to eq bank_params[:bank]
+      end
+
+      context 'errors' do
+        it 'bad username returns a SynapsisError' do
+          new_user = Synapsis::User.create(user_params)
+
+          bank_params = {
+            username: 'WRONG USERNAME',
+            password: 'test1234',
+            pin: '1234',
+            oauth_consumer_key: new_user.access_token,
+            bank: 'Ally',
+            mfa: 'test_answer'
+          }
+
+          new_bank = Synapsis::Bank.link(bank_params)
+
+          expect(new_bank.class).to eq Synapsis::Error
+          expect(new_bank.reason).to be_a_kind_of String
+        end
+
+        it 'bad password returns a SynapsisError' do
+          new_user = Synapsis::User.create(user_params)
+
+          bank_params = {
+            username: 'synapse_code',
+            password: 'WRONG PASSWORD',
+            pin: '1234',
+            oauth_consumer_key: new_user.access_token,
+            bank: 'Ally',
+            mfa: 'test_answer'
+          }
+
+          new_bank = Synapsis::Bank.link(bank_params)
+
+          expect(new_bank.class).to eq Synapsis::Error
+          expect(new_bank.reason).to be_a_kind_of String
+        end
+
+        it 'bad mfa answer returns a SynapsisError' do
+          new_user = Synapsis::User.create(user_params)
+
+          bank_params = {
+            username: 'synapse_code',
+            password: 'test1234',
+            oauth_consumer_key: new_user.access_token,
+            bank: 'Chase',
+            mfa: 'WRONG MFA ANSWER'
+          }
+
+          new_bank = Synapsis::Bank.link(bank_params)
+
+          expect(new_bank.class).to eq Synapsis::Error
+          expect(new_bank.reason).to be_a_kind_of String
+        end
+      end
+    end
+
+    context 'no MFA' do
+      context 'happy path' do
+        it 'adds a bank account' do
+          new_user = Synapsis::User.create(user_params)
+
+          bank_params = {
+            username: 'synapse_nomfa',
+            password: 'test1234',
+            oauth_consumer_key: new_user.access_token,
+            bank: 'Capital One 360'
+          }
+
+          new_bank = Synapsis::Bank.link(bank_params)
+
+          expect(new_bank.name_on_account).to eq user_params[:fullname]
+          expect(new_bank.bank_name).to eq bank_params[:bank]
+        end
+      end
+
+      context 'errors' do
+        it 'bad username returns a SynapsisError' do
+          new_user = Synapsis::User.create(user_params)
+
+          bank_params = {
+            username: 'WRONG USERNAME',
+            password: 'test1234',
+            oauth_consumer_key: new_user.access_token,
+            bank: 'Capital One 360'
+          }
+
+          new_bank = Synapsis::Bank.link(bank_params)
+
+          expect(new_bank.class).to eq Synapsis::Error
+          expect(new_bank.reason).to be_a_kind_of String
+        end
+
+        it 'bad password returns a SynapsisError' do
+          new_user = Synapsis::User.create(user_params)
+
+          bank_params = {
+            username: 'synapsenomfa',
+            password: 'test12345',
+            oauth_consumer_key: new_user.access_token,
+            bank: 'Capital One 360'
+          }
+
+          new_bank = Synapsis::Bank.link(bank_params)
+
+          expect(new_bank.class).to eq Synapsis::Error
+          expect(new_bank.reason).to be_a_kind_of String
+        end
+
+        it 'bad mfa answer returns a SynapsisError' do
+          new_user = Synapsis::User.create(user_params)
+
+          bank_params = {
+            username: 'synapse_good',
+            password: 'test1234',
+            oauth_consumer_key: new_user.access_token,
+            bank: 'Regions Kentucky',
+            mfa: 'WRONG MFA ANSWER'
           }
 
           new_bank = Synapsis::Bank.link(bank_params)
