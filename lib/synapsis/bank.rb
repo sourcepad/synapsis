@@ -73,14 +73,15 @@ class Synapsis::Bank
         req.body = build_json_from_variable_hash
       end
 
-      if JSON.parse(new_bank.body)['success']
+      if JSON.parse(new_bank.body)['banks']
         Synapsis::RetrievedBank.new(new_bank)
       else
-        binding.pry
-        Synapsis::Error.new(JSON.parse(new_bank.body))
+        Synapsis::Error.new({
+          "reason" => "Wrong MFA answer."
+        })
       end
     else
-      # API response is different from other banks.
+      # API response is different so we parse the API response to get the message we need
       Synapsis::Error.new({
         "reason" => JSON.parse(partially_linked_bank.body)['message']
       })
