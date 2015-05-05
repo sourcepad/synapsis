@@ -64,18 +64,26 @@ class Synapsis::Bank
       req.body = build_json_from_variable_hash
     end
 
-    @access_token = JSON.parse(partially_linked_bank.body)['response']['access_token']
+    if JSON.parse(partially_linked_bank.body)['success']
+      @access_token = JSON.parse(partially_linked_bank.body)['response']['access_token']
 
-    new_bank =  Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}bank/mfa/?is_dev=yes"
-      req.body = build_json_from_variable_hash
-    end
+      new_bank =  Synapsis.connection.post do |req|
+        req.headers['Content-Type'] = 'application/json'
+        req.url "#{API_V2_PATH}bank/mfa/?is_dev=yes"
+        req.body = build_json_from_variable_hash
+      end
 
-    if JSON.parse(new_bank.body)['success']
-      Synapsis::RetrievedBank.new(new_bank)
+      if JSON.parse(new_bank.body)['success']
+        Synapsis::RetrievedBank.new(new_bank)
+      else
+        binding.pry
+        Synapsis::Error.new(JSON.parse(new_bank.body))
+      end
     else
-      Synapsis::Error.new(JSON.parse(new_bank.body))
+      # API response is different from other banks.
+      Synapsis::Error.new({
+        "reason" => JSON.parse(partially_linked_bank.body)['message']
+      })
     end
   end
 
