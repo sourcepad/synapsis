@@ -2,12 +2,12 @@
 require "faraday"
 
 # Internal dependencies
-
 require "synapsis/version"
 require "synapsis/utilities"
 require "synapsis/authentication"
 require "synapsis/user"
 require "synapsis/bank"
+require "synapsis/order"
 require "synapsis/error"
 
 module Synapsis
