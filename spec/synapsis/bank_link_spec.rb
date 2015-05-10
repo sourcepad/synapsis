@@ -248,5 +248,50 @@ RSpec.describe Synapsis::Bank do
         end
       end
     end
+
+    context 'multiple bank linkages' do
+      it 'works' do
+        new_user = Synapsis::User.create(user_params)
+
+        first_bank_params = {
+          username: 'synapse_code',
+          password: 'test1234',
+          oauth_consumer_key: new_user.access_token,
+          bank: 'Ally',
+          mfa: 'test_answer'
+        }
+
+        first_bank = Synapsis::Bank.new(first_bank_params).link
+
+        expect(first_bank.name_on_account).to eq user_params[:fullname]
+        expect(first_bank.bank_name).to eq first_bank_params[:bank]
+
+        bank_params = {
+          fullname: new_user.fullname,
+          account_num: '1111111112',
+          routing_num: '121000358',
+          nickname: 'Sourcepad Bank',
+          oauth_consumer_key: new_user.access_token,
+          account_type: Synapsis::Bank::AccountType::CHECKING,
+          account_class: Synapsis::Bank::AccountClass::PERSONAL
+        }
+
+        new_bank = Synapsis::Bank.add(bank_params)
+
+        second_bank_params = {
+          username: 'synapse_good',
+          password: 'test1234',
+          oauth_consumer_key: new_user.access_token,
+          bank: 'PNC',
+          mfa: 'test_answer'
+        }
+
+        second_bank = Synapsis::Bank.new(second_bank_params).link
+
+        expect(second_bank.name_on_account).to eq user_params[:fullname]
+        expect(second_bank.bank_name).to eq second_bank_params[:bank]
+
+      end
+    end
   end
 end

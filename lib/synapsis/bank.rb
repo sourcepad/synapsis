@@ -1,4 +1,4 @@
-class Synapsis::Bank
+class Synapsis::Bank < Synapsis::APIResource
   include Synapsis::Utilities
 
   module AccountClass
@@ -11,110 +11,6 @@ class Synapsis::Bank
     SAVINGS = 2
   end
 
-  attr_accessor :account_class,
-    :account_num,
-    :account_type,
-    :bank,
-    :fullname,
-    :mfa,
-    :nickname,
-    :oauth_consumer_key,
-    :password,
-    :pin,
-    :routing_num,
-    :username,
-    :access_token
-
-  def self.add(params)
-    self.new(params).add
-  end
-
-  def self.link(params)
-    self.new(params).link
-  end
-
-  def self.view_linked_banks(params)
-    self.new(params).view_linked_banks
-  end
-
-  def initialize(params)
-    params.each do |k, v|
-      send("#{k}=", v)
-    end
-  end
-
-  def add
-    added_bank = Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}bank/add/"
-      req.body = build_json_from_variable_hash
-    end
-
-    if JSON.parse(added_bank.body)['success']
-      Synapsis::RetrievedBank.new(added_bank)
-    else
-      Synapsis::Error.new(JSON.parse(added_bank.body))
-    end
-  end
-
-  def link
-    partially_linked_bank = Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}bank/login/?is_dev=yes"
-      req.body = build_json_from_variable_hash
-    end
-
-    parsed_partially_linked_bank = JSON.parse(partially_linked_bank.body)
-
-    if parsed_partially_linked_bank['success']
-      if parsed_partially_linked_bank['banks'] # This happens if the added bank has no MFA
-        return Synapsis::RetrievedBank.new(partially_linked_bank)
-      end
-
-      @access_token = parsed_partially_linked_bank['response']['access_token']
-
-      new_bank =  Synapsis.connection.post do |req|
-        req.headers['Content-Type'] = 'application/json'
-        req.url "#{API_V2_PATH}bank/mfa/?is_dev=yes"
-        req.body = build_json_from_variable_hash
-      end
-
-      if JSON.parse(new_bank.body)['banks']
-        Synapsis::RetrievedBank.new(new_bank)
-      else
-        Synapsis::Error.new({
-          "reason" => "Wrong MFA answer."
-        })
-      end
-    else
-      # API response is different so we parse the API response to get the message we need
-      Synapsis::Error.new({
-        "reason" => JSON.parse(partially_linked_bank.body)['message']
-      })
-    end
-  end
-
-  def self.remove(bank_id, oauth_consumer_key)
-    return Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}bank/delete/"
-      req.body = JSON.generate(
-        bank_id: bank_id,
-        oauth_consumer_key: oauth_consumer_key
-      )
-    end
-  end
-
-  def view_linked_banks
-    Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}bank/show/"
-      req.body = build_json_from_variable_hash
-    end
-  end
-end
-
-class Synapsis::RetrievedBank
   attr_accessor :account_class,
     :account_number_string,
     :account_type,
@@ -135,17 +31,85 @@ class Synapsis::RetrievedBank
     :resource_uri,
     :routing_number_string
 
-  def initialize(synapse_response)
-    parsed_response = JSON.parse(synapse_response.body)
+  def self.add(params)
+    added_bank = create_request(params)
 
-    if parsed_response['banks']
-      parsed_response['banks'].first.each do |k, v|
+    if JSON.parse(added_bank.body)['success']
+      new(JSON.parse(added_bank.body))
+    else
+      Synapsis::Error.new(JSON.parse(added_bank.body))
+    end
+  end
+
+  def self.link(params)
+    partially_linked_bank = Synapsis.connection.post do |req|
+      req.headers['Content-Type'] = 'application/json'
+      req.url "#{API_V2_PATH}bank/login/?is_dev=yes"
+      req.body = JSON.generate(params)
+    end
+
+    parsed_partially_linked_bank = JSON.parse(partially_linked_bank.body)
+
+    if parsed_partially_linked_bank['success']
+      if parsed_partially_linked_bank['banks'] # This happens if the added bank has no MFA
+        return new(JSON.parse(partially_linked_bank.body))
+      end
+
+      @access_token = parsed_partially_linked_bank['response']['access_token']
+
+      new_bank =  Synapsis.connection.post do |req|
+        req.headers['Content-Type'] = 'application/json'
+        req.url "#{API_V2_PATH}bank/mfa/?is_dev=yes"
+        req.body = JSON.generate(params.merge(access_token: @access_token))
+      end
+
+      if JSON.parse(new_bank.body)['banks']
+        new(JSON.parse(new_bank.body))
+      else
+        Synapsis::Error.new({
+          "reason" => "Wrong MFA answer."
+        })
+      end
+    else
+      # API response is different so we parse the API response to get the message we need
+      Synapsis::Error.new({
+        "reason" => JSON.parse(partially_linked_bank.body)['message']
+      })
+    end
+  end
+
+  def self.view_linked_banks(params)
+    self.new(params).view_linked_banks
+  end
+
+  def initialize(params)
+    if params['banks']
+      params['banks'].first.each do |k, v|
         send("#{k}=", v)
       end
-    elsif parsed_response['bank']
-      parsed_response['bank'].each do |k, v|
+    elsif params['bank']
+      params['bank'].each do |k, v|
         send("#{k}=", v)
       end
+    end
+  end
+
+  def self.remove(bank_id, oauth_consumer_key)
+    return Synapsis.connection.post do |req|
+      req.headers['Content-Type'] = 'application/json'
+      req.url "#{API_V2_PATH}bank/delete/"
+      req.body = JSON.generate(
+        bank_id: bank_id,
+        oauth_consumer_key: oauth_consumer_key
+      )
+    end
+  end
+
+  def view_linked_banks
+    Synapsis.connection.post do |req|
+      req.headers['Content-Type'] = 'application/json'
+      req.url "#{API_V2_PATH}bank/show/"
+      req.body = build_json_from_variable_hash
     end
   end
 end
