@@ -22,6 +22,10 @@ Or install it yourself as:
 
 TODO: Write usage instructions here
 
+## Testing
+
+Yasmin's username: `0d8b52f75e224400ba1511d411e598`
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/synapsis/fork )

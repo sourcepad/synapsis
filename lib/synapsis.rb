@@ -8,6 +8,7 @@ require "synapsis/api_resource"
 require "synapsis/authentication"
 require "synapsis/user"
 require "synapsis/bank"
+require "synapsis/withdrawal"
 require "synapsis/order"
 require "synapsis/error"
 
