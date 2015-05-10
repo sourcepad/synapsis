@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe Synapsis::Order do
-  context '#create' do
+  context '#add' do
     context 'happy path' do
       it 'constructs the correct Order object' do
         order_params = {
@@ -10,7 +10,7 @@ RSpec.describe Synapsis::Order do
           seller_id: 3437
         }
 
-        order = Synapsis::Order.create(order_params)
+        order = Synapsis::Order.add(order_params)
 
         # Ensure Order object responds to all the params in a Synapse response object
         (order.instance_variables - [:@status_uri]).each do |x|
@@ -28,7 +28,7 @@ RSpec.describe Synapsis::Order do
           seller_id: 3437
         }
 
-        order = Synapsis::Order.create(order_params)
+        order = Synapsis::Order.add(order_params)
 
         new_buyer_account_balance = Synapsis::User.view('3bdb5790692d06983d8cb0feb40365886631e52d').balance
         new_seller_account_balance = Synapsis::User.view('325ea5c0c3a7927280c54ed3ad310c02b45129d8').balance

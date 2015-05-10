@@ -1,4 +1,4 @@
-class Synapsis::Order
+class Synapsis::Order < Synapsis::APIResource
   include Synapsis::Utilities
 
   attr_accessor :balance, :balance_verified, :success, :account_type, :amount, :date, :date_settled, :discount, :facilitator_fee, :fee, :id, :is_buyer, :note, :resource_uri, :seller, :status, :status_uri, :ticket_number, :tip, :total
@@ -7,12 +7,8 @@ class Synapsis::Order
 
   SYNAPSE_FEE = 0.10
 
-  def self.create(params)
-    response = Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}order/add/"
-      req.body = JSON.generate(params)
-    end
+  def self.add(params)
+    response = create_request(params)
 
     if JSON.parse(response.body)['success']
       new(JSON.parse(response.body))
@@ -36,6 +32,5 @@ class Synapsis::Order
       send("#{k}=", params['order'][k])
     end
   end
-
 end
 

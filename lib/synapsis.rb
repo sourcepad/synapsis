@@ -4,6 +4,7 @@ require "faraday"
 # Internal dependencies
 require "synapsis/version"
 require "synapsis/utilities"
+require "synapsis/api_resource"
 require "synapsis/authentication"
 require "synapsis/user"
 require "synapsis/bank"
