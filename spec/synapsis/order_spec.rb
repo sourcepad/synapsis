@@ -37,5 +37,17 @@ RSpec.describe Synapsis::Order do
         expect(new_seller_account_balance).to eq seller_account_balance + order_params[:amount] - Synapsis::Order.synapse_fee
       end
     end
+
+    context 'no amount specified' do
+      it 'raises a Synapsis::Error' do
+        order_params = {
+          amount: 0,
+          oauth_consumer_key: '3bdb5790692d06983d8cb0feb40365886631e52d',
+          seller_id: 3437
+        }
+
+        expect{ Synapsis::Order.add(order_params) }.to raise_error(Synapsis::Error).with_message('Missing amount')
+      end
+    end
   end
 end

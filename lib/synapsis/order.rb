@@ -1,7 +1,7 @@
 class Synapsis::Order < Synapsis::APIResource
   include Synapsis::Utilities
 
-  attr_accessor :balance, :balance_verified, :success, :account_type, :amount, :date, :date_settled, :discount, :facilitator_fee, :fee, :id, :is_buyer, :note, :resource_uri, :seller, :status, :status_uri, :ticket_number, :tip, :total
+  attr_accessor :balance_verified, :success, :account_type, :amount, :date, :date_settled, :discount, :facilitator_fee, :fee, :id, :is_buyer, :note, :resource_uri, :seller, :status, :status_uri, :ticket_number, :tip, :total
 
   ORDER_PARAMS = ['account_type', 'amount', 'date', 'date_settled', 'discount', 'facilitator_fee', 'fee', 'id', 'is_buyer', 'note', 'resource_uri', 'seller', 'status', 'status_uri', 'ticket_number', 'tip', 'total']
 
@@ -10,10 +10,12 @@ class Synapsis::Order < Synapsis::APIResource
   def self.add(params)
     response = create_request(params)
 
-    if JSON.parse(response.body)['success']
-      return new(JSON.parse(response.body))
+    parsed_response = JSON.parse(response.body)
+
+    if parsed_response['success']
+      return new(parsed_response)
     else
-      return Synapsis::Error.new(JSON.parse(response.body))
+      raise Synapsis::Error, parsed_response['reason']
     end
   end
 
@@ -22,7 +24,7 @@ class Synapsis::Order < Synapsis::APIResource
   end
 
   def initialize(params)
-    ['success', 'balance', 'balance_verified'].each do |k|
+    ['success', 'balance_verified'].each do |k|
       send("#{k}=", params[k])
     end
 
