@@ -68,7 +68,7 @@ RSpec.describe Synapsis::User do
       oauth_token = 'c7eda20ff7b2554c0bed2ad596ac5dfeb33124e1'
       response = Synapsis::User.view(oauth_token)
 
-      user_attributes = [:accept_gratuity, :balance, :email, :fullname, :has_avatar, :phone_number, :resource_uri, :seller_details, :user_id, :username, :visit_count, :visit_message]
+      user_attributes = [:accept_gratuity, :balance, :email, :fullname, :has_avatar, :phone_number, :seller_details, :user_id, :username, :visit_count, :visit_message]
 
       user_attributes.each do |user_attribute|
         expect(response.send(user_attribute)).not_to be_nil
