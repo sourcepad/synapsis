@@ -1,6 +1,4 @@
 class Synapsis::APIResource
-  API_V2_PATH = 'api/v2/'
-
   def self.class_name
     name.partition('::').last.downcase
   end

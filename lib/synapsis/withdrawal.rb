@@ -1,5 +1,6 @@
 class Synapsis::Withdrawal < Synapsis::APIResource
   include Synapsis::Utilities
+  extend Synapsis::APIOperations::View
 
   attr_accessor :balance,
     :is_mfa,
@@ -29,6 +30,15 @@ class Synapsis::Withdrawal < Synapsis::APIResource
     end
   end
 
+  def self.view(params)
+    response = view_request(params)
+
+    if response.success?
+      return JSON.parse(response.body)
+    else
+      Synapsis::Error.new(JSON.parse(response.body))
+    end
+  end
 
   def initialize(params)
     ['balance', 'is_mfa', 'reason', 'success'].each do |k|

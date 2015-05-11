@@ -1,10 +1,17 @@
 # External dependencies
 require "faraday"
 
+# Namespacing
+
+module Synapsis
+  module APIOperations; end
+end
+
 # Internal dependencies
 require "synapsis/version"
 require "synapsis/utilities"
 require "synapsis/api_resource"
+require "synapsis/api_operations/view"
 require "synapsis/authentication"
 require "synapsis/user"
 require "synapsis/bank"
@@ -12,6 +19,8 @@ require "synapsis/withdrawal"
 require "synapsis/deposit"
 require "synapsis/order"
 require "synapsis/error"
+
+API_V2_PATH = 'api/v2/'
 
 module Synapsis
   class << self

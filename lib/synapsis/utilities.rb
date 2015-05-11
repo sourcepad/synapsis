@@ -1,8 +1,6 @@
 require 'json'
 
 module Synapsis::Utilities
-  API_V2_PATH = 'api/v2/'
-
   def build_json_from_params
     JSON.generate(to_hash.merge(client_credentials))
   end

@@ -45,4 +45,32 @@ RSpec.describe Synapsis::Withdrawal do
       end
     end
   end
+
+  context '#view' do
+    context 'no ID' do
+      let!(:withdrawal_params) {{
+        oauth_consumer_key: '3bdb5790692d06983d8cb0feb40365886631e52d'
+      }}
+
+      context 'happy path' do
+        xit 'returns an array of the user\'s withdrawals' do
+          all_withdrawals = Synapsis::Withdrawal.view(withdrawal_params)
+        end
+      end
+    end
+
+    context 'with ID' do
+      let!(:withdrawal_params) {{
+        id: 354,
+        oauth_consumer_key: '3bdb5790692d06983d8cb0feb40365886631e52d'
+      }}
+
+      context 'happy path' do
+        xit 'returns an array of the user\'s withdrawals' do
+          pending
+        end
+      end
+    end
+  end
 end
+
