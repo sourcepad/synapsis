@@ -1,2 +1,1 @@
-class Synapsis::Error < StandardError
-end
+class Synapsis::Error < StandardError; end

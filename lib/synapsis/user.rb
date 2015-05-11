@@ -1,115 +1,70 @@
-class Synapsis::User
+class Synapsis::User < Synapsis::APIResource
   include Synapsis::Utilities
+  extend Synapsis::APIOperations::Edit
+  extend Synapsis::APIOperations::View
 
-  attr_accessor :email,
-    :fullname,
-    :password,
-    :ip_address,
-    :phonenumber,
-    :access_token,
+  attr_accessor :access_token,
+    :oauth_consumer_key,
+    :expires_in,
+    :reason,
     :refresh_token,
-    :username
+    :success,
+    :username,
+    :user_id,
+    :user,
+    :accept_bank_payments, # params from an edit
+    :accept_gratuity,
+    :balance,
+    :email,
+    :fullname,
+    :has_avatar,
+    :is_seller,
+    :phone_number,
+    :resource_uri,
+    :seller_details,
+    :settle_daily,
+    :username,
+    :visit_count,
+    :visit_message
 
   def self.create(params)
-    self.new(params).create
+    response = create_request(params.merge(client_credentials))
+    return_response(response)
   end
 
   def self.edit(params)
-    self.new({}).edit(params)
+    response = edit_request(params)
+    return_response(response)
   end
 
-  def self.view(params)
-    self.new({}).view(params)
+  def self.view(oauth_token)
+    response = view_request('oauth_consumer_key' => oauth_token)
+    return_response(response)
   end
 
-  def initialize(params)
-    params.each do |k, v|
+  def initialize(synapse_response)
+    synapse_response.each do |k, v|
       send("#{k}=", v)
     end
-  end
 
-  def create
-    response = Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}user/create/"
-      req.body = build_json_from_params
-    end
-
-    if JSON.parse(response.body)['success']
-      update_attributes(response)
-      return self
-    else
-      return Synapsis::Error.new(JSON.parse(response.body))
-    end
-  end
-
-  def edit(params)
-    response = Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}user/edit/"
-      req.body = JSON.generate(params)
-    end
-
-
-    if JSON.parse(response.body)['success']
-      update_attributes(response)
-      return self
-    else
-      return Synapsis::Error.new(JSON.parse(response.body))
-    end
-  end
-
-  def view(oauth_token = @access_token)
-    response = Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}user/show/"
-      req.body = JSON.generate({ 'oauth_consumer_key' => oauth_token})
-    end
-
-    if response.success?
-      return Synapsis::RetrievedUser.new(response)
-    else
-      return response
+    if synapse_response['user']
+      synapse_response['user'].each do |k, v|
+        send("#{k}=", v)
+      end
     end
   end
 
   private
 
-  def update_attributes(synapse_response)
-    parsed_response = JSON.parse(synapse_response.body)
-    @access_token =  parsed_response['access_token']
-    @refresh_token =  parsed_response['refresh_token']
-    @username =  parsed_response['username']
-
-    if parsed_response['user']
-      @fullname =  parsed_response['user']['fullname']
-    end
+  def self.client_credentials
+    {
+      client_id: Synapsis.client_id,
+      client_secret: Synapsis.client_secret
+    }
   end
 
-  class Synapsis::RetrievedUser
-    attr_accessor :accept_bank_payments,
-      :accept_gratuity,
-      :balance,
-      :email,
-      :fullname,
-      :has_avatar,
-      :is_seller,
-      :phone_number,
-      :resource_uri,
-      :seller_details,
-      :settle_daily,
-      :user_id,
-      :username,
-      :visit_count,
-      :visit_message
-
-    def initialize(synapse_response)
-      parsed_response = JSON.parse(synapse_response.body)
-
-      parsed_response['user'].each do |k, v|
-        send("#{k}=", v)
-      end
-    end
+  def self.create_url
+    "#{API_V2_PATH}user/create/"
   end
 end
 

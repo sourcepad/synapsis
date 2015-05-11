@@ -3,6 +3,20 @@ class Synapsis::APIResource
     name.partition('::').last.downcase
   end
 
+  def class_name
+    self.class.name.partition('::').last.downcase
+  end
+
+  def self.return_response(response)
+    parsed_response = JSON.parse(response.body)
+
+    if response.success?
+      new(parsed_response)
+    else
+      raise Synapsis::Error, parsed_response['reason']
+    end
+  end
+
   def self.create_request(params)
     Synapsis.connection.post do |req|
       req.headers['Content-Type'] = 'application/json'

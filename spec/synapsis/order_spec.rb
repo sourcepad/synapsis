@@ -12,7 +12,6 @@ RSpec.describe Synapsis::Order do
 
         order = Synapsis::Order.add(order_params)
 
-        # Ensure Order object responds to all the params in a Synapse response object
         (order.instance_variables - [:@status_uri]).each do |x|
           expect(order.send(x.to_s.gsub('@', ''))).not_to be_nil
         end
