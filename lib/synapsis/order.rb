@@ -11,12 +11,10 @@ class Synapsis::Order < Synapsis::APIResource
     response = create_request(params)
 
     if JSON.parse(response.body)['success']
-      new(JSON.parse(response.body))
+      return new(JSON.parse(response.body))
     else
       return Synapsis::Error.new(JSON.parse(response.body))
     end
-
-    return self
   end
 
   def self.synapse_fee
