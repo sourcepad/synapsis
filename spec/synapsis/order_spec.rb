@@ -22,7 +22,7 @@ RSpec.describe Synapsis::Order do
         seller_account_balance = Synapsis::User.view('325ea5c0c3a7927280c54ed3ad310c02b45129d8').balance
 
         order_params = {
-          amount: 1,
+          amount: 10,
           oauth_consumer_key: '3bdb5790692d06983d8cb0feb40365886631e52d',
           seller_id: 3437
         }

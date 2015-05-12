@@ -7,7 +7,7 @@ module Synapsis::APIOperations::Create
     end
   end
 
-  def self.create_url
+  def create_url
     "#{API_V2_PATH}#{class_name}/add"
   end
 end

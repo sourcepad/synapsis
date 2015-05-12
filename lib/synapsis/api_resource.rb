@@ -16,4 +16,8 @@ class Synapsis::APIResource
       raise Synapsis::Error, parsed_response['reason']
     end
   end
+
+  def self.parse_as_synapse_resource(response)
+    return JSON.parse(response.body, object_class: Synapsis::Response)
+  end
 end

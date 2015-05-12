@@ -25,13 +25,13 @@ RSpec.describe Synapsis::Bank do
 
           new_bank = Synapsis::Bank.link(bank_params)
 
-          expect(new_bank.name_on_account).to eq user_params[:fullname]
-          expect(new_bank.bank_name).to eq bank_params[:bank]
+          expect(new_bank.banks.first.name_on_account).to eq user_params[:fullname]
+          expect(new_bank.banks.first.bank_name).to eq bank_params[:bank]
         end
       end
 
       context 'errors' do
-        it 'bad username returns a SynapsisError' do
+        it 'bad username raises a SynapsisError' do
           new_user = Synapsis::User.create(user_params)
 
           bank_params = {
@@ -43,28 +43,7 @@ RSpec.describe Synapsis::Bank do
             mfa: 'test_answer'
           }
 
-          new_bank = Synapsis::Bank.link(bank_params)
-
-          expect(new_bank.class).to eq Synapsis::Error
-          expect(new_bank.reason).to be_a_kind_of String
-        end
-
-        it 'bad password returns a SynapsisError' do
-          new_user = Synapsis::User.create(user_params)
-
-          bank_params = {
-            username: 'synapse_good',
-            password: 'WRONG PASSWORD',
-            pin: '1234',
-            oauth_consumer_key: new_user.access_token,
-            bank: 'US Bank',
-            mfa: 'test_answer'
-          }
-
-          new_bank = Synapsis::Bank.link(bank_params)
-
-          expect(new_bank.class).to eq Synapsis::Error
-          expect(new_bank.reason).to be_a_kind_of String
+          expect{ Synapsis::Bank.link(bank_params) }.to raise_error(Synapsis::Error).with_message('The input you have entered is not valid. Please check your entry and try again.')
         end
 
         it 'bad mfa answer returns a SynapsisError' do
@@ -78,10 +57,7 @@ RSpec.describe Synapsis::Bank do
             mfa: 'WRONG MFA ANSWER'
           }
 
-          new_bank = Synapsis::Bank.link(bank_params)
-
-          expect(new_bank.class).to eq Synapsis::Error
-          expect(new_bank.reason).to be_a_kind_of String
+          expect{ Synapsis::Bank.link(bank_params) }.to raise_error(Synapsis::Error).with_message('Wrong MFA answer.')
         end
 
         xit 'bad PIN returns a SynapsisError--pending since trying test data with a wrong PIN still completes the linking process' do
@@ -118,8 +94,8 @@ RSpec.describe Synapsis::Bank do
 
         new_bank = Synapsis::Bank.link(bank_params)
 
-        expect(new_bank.name_on_account).to eq user_params[:fullname]
-        expect(new_bank.bank_name).to eq bank_params[:bank]
+        expect(new_bank.banks.first.name_on_account).to eq user_params[:fullname]
+        expect(new_bank.banks.first.bank_name).to eq bank_params[:bank]
       end
 
       context 'errors' do
@@ -135,28 +111,7 @@ RSpec.describe Synapsis::Bank do
             mfa: 'test_answer'
           }
 
-          new_bank = Synapsis::Bank.link(bank_params)
-
-          expect(new_bank.class).to eq Synapsis::Error
-          expect(new_bank.reason).to be_a_kind_of String
-        end
-
-        it 'bad password returns a SynapsisError' do
-          new_user = Synapsis::User.create(user_params)
-
-          bank_params = {
-            username: 'synapse_code',
-            password: 'WRONG PASSWORD',
-            pin: '1234',
-            oauth_consumer_key: new_user.access_token,
-            bank: 'Ally',
-            mfa: 'test_answer'
-          }
-
-          new_bank = Synapsis::Bank.link(bank_params)
-
-          expect(new_bank.class).to eq Synapsis::Error
-          expect(new_bank.reason).to be_a_kind_of String
+          expect { Synapsis::Bank.link(bank_params) }.to raise_error(Synapsis::Error).with_message('Please Enter the Correct Username and Password')
         end
 
         it 'bad mfa answer returns a SynapsisError' do
@@ -170,10 +125,7 @@ RSpec.describe Synapsis::Bank do
             mfa: 'WRONG MFA ANSWER'
           }
 
-          new_bank = Synapsis::Bank.link(bank_params)
-
-          expect(new_bank.class).to eq Synapsis::Error
-          expect(new_bank.reason).to be_a_kind_of String
+          expect { Synapsis::Bank.link(bank_params) }.to raise_error(Synapsis::Error).with_message('Wrong MFA answer.')
         end
       end
     end
@@ -192,8 +144,9 @@ RSpec.describe Synapsis::Bank do
 
           new_bank = Synapsis::Bank.link(bank_params)
 
-          expect(new_bank.name_on_account).to eq user_params[:fullname]
-          expect(new_bank.bank_name).to eq bank_params[:bank]
+          # Upcase since Synapse automatically downcases titles such as "MD, PHD" (it becomes Md or Phd)
+          expect(new_bank.banks.first.name_on_account.upcase).to eq user_params[:fullname].upcase
+          expect(new_bank.banks.first.bank_name).to eq bank_params[:bank]
         end
       end
 
@@ -208,26 +161,7 @@ RSpec.describe Synapsis::Bank do
             bank: 'Capital One 360'
           }
 
-          new_bank = Synapsis::Bank.link(bank_params)
-
-          expect(new_bank.class).to eq Synapsis::Error
-          expect(new_bank.reason).to be_a_kind_of String
-        end
-
-        it 'bad password returns a SynapsisError' do
-          new_user = Synapsis::User.create(user_params)
-
-          bank_params = {
-            username: 'synapsenomfa',
-            password: 'test12345',
-            oauth_consumer_key: new_user.access_token,
-            bank: 'Capital One 360'
-          }
-
-          new_bank = Synapsis::Bank.link(bank_params)
-
-          expect(new_bank.class).to eq Synapsis::Error
-          expect(new_bank.reason).to be_a_kind_of String
+          expect { Synapsis::Bank.link(bank_params) }.to raise_error(Synapsis::Error).with_message('The username or password provided were not correct.')
         end
 
         it 'bad mfa answer returns a SynapsisError' do
@@ -241,16 +175,13 @@ RSpec.describe Synapsis::Bank do
             mfa: 'WRONG MFA ANSWER'
           }
 
-          new_bank = Synapsis::Bank.link(bank_params)
-
-          expect(new_bank.class).to eq Synapsis::Error
-          expect(new_bank.reason).to be_a_kind_of String
+          expect { Synapsis::Bank.link(bank_params) }.to raise_error(Synapsis::Error).with_message('Wrong MFA answer.')
         end
       end
     end
 
     context 'multiple bank linkages' do
-      it 'works' do
+      xit 'works' do
         new_user = Synapsis::User.create(user_params)
 
         first_bank_params = {
