@@ -11,8 +11,9 @@ end
 require "synapsis/version"
 require "synapsis/utilities"
 require "synapsis/api_resource"
-require "synapsis/api_operations/view"
+require "synapsis/api_operations/create"
 require "synapsis/api_operations/edit"
+require "synapsis/api_operations/view"
 require "synapsis/authentication"
 require "synapsis/user"
 require "synapsis/bank"
@@ -47,4 +48,6 @@ module Synapsis
       yield(self)
     end
   end
+
+  class Response < OpenStruct; end
 end

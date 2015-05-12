@@ -44,7 +44,7 @@ RSpec.describe Synapsis::User do
 
       edited_user = Synapsis::User.edit(edit_user_attributes)
 
-      expect(edited_user.fullname).to eq edit_user_attributes['fullname']
+      expect(edited_user.user.fullname).to eq edit_user_attributes['fullname']
     end
 
     it 'returns an error if the update didnt work' do
@@ -58,7 +58,7 @@ RSpec.describe Synapsis::User do
     end
   end
 
-  describe '#view' do
+  describe '.view' do
     context 'happy path' do
       it 'retrieves the user and returns their information in Struct form' do
         oauth_token = 'c7eda20ff7b2554c0bed2ad596ac5dfeb33124e1'
@@ -67,7 +67,7 @@ RSpec.describe Synapsis::User do
         user_attributes = [:accept_gratuity, :balance, :email, :fullname, :has_avatar, :phone_number, :seller_details, :user_id, :username, :visit_count, :visit_message]
 
         user_attributes.each do |user_attribute|
-          expect(response.send(user_attribute)).not_to be_nil
+          expect(response.user.send(user_attribute)).not_to be_nil
         end
       end
     end
