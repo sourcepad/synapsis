@@ -10,38 +10,26 @@ RSpec.describe Synapsis::Withdrawal do
 
     context 'happy path' do
       it 'constructs the correct Withdrawal object' do
-        withdrawal = Synapsis::Withdrawal.create(withdrawal_params)
+        withdrawal_response = Synapsis::Withdrawal.create(withdrawal_params)
 
-        (withdrawal.instance_variables - [:@status_url]).each do |x|
-          expect(withdrawal.send(x.to_s.gsub('@', ''))).not_to be_nil
+        WITHDRAWAL_SPECIFIC_PARAMS = ['amount', 'bank', 'date_created', 'fee', 'id', 'instant_credit', 'resource_uri', 'status', 'status_url', 'user_id']
+
+        (WITHDRAWAL_SPECIFIC_PARAMS - ['status_url']).each do |x|
+          expect(withdrawal_response.withdrawal.send(x.to_s.gsub('@', ''))).not_to be_nil
         end
       end
     end
 
-    context 'Error: No amount' do
-      it 'creates a Synapsis::Error object' do
-        withdrawal = Synapsis::Withdrawal.create(withdrawal_params.merge(amount: 0))
+    context 'errors' do
+      it 'create a Synapsis::Error object' do
+        # Missing amount
+        expect { Synapsis::Withdrawal.create(withdrawal_params.merge(amount: 0)) }.to raise_error(Synapsis::Error).with_message('Missing amount')
 
-        expect(withdrawal).to be_a_kind_of(Synapsis::Error)
-        expect(withdrawal.reason).to eq 'Missing amount'
-      end
-    end
+        # OAuth error
+        expect { Synapsis::Withdrawal.create(withdrawal_params.merge(oauth_consumer_key: 'WRONG!!!')) }.to raise_error(Synapsis::Error).with_message('Error in OAuth Authentication.')
 
-    context 'Error: OAuth' do
-      it 'creates a Synapsis::Error object' do
-        withdrawal = Synapsis::Withdrawal.create(withdrawal_params.merge(oauth_consumer_key: 'WRONG!!!'))
-
-        expect(withdrawal).to be_a_kind_of(Synapsis::Error)
-        expect(withdrawal.reason).to eq 'Error in OAuth Authentication.'
-      end
-    end
-
-    context 'Error: Wrong bank ID' do
-      it 'creates a Synapsis::Error object' do
-        withdrawal = Synapsis::Withdrawal.create(withdrawal_params.merge(bank_id: 1)) # User does not own bank_id 1
-
-        expect(withdrawal).to be_a_kind_of(Synapsis::Error)
-        expect(withdrawal.reason).to eq 'Bank account not associated with the user'
+        # Wrong bank ID (user does not own bank_id 1)
+        expect{ Synapsis::Withdrawal.create(withdrawal_params.merge(bank_id: 1))}.to raise_error(Synapsis::Error).with_message('Bank account not associated with the user')
       end
     end
   end

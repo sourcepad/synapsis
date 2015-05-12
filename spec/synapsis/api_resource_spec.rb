@@ -6,7 +6,6 @@ RSpec.describe Synapsis::APIResource do
       class Synapsis::Thingie < Synapsis::APIResource; end
 
       expect(Synapsis::Thingie.class_name).to eq 'thingie'
-      expect(Synapsis::Thingie.create_url).to eq 'api/v2/thingie/add'
     end
   end
 end
