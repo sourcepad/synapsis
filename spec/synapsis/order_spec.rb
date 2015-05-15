@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe Synapsis::Order do
-  context '#add' do
+  context '.add' do
     let!(:delta) { 0.001 }
     let!(:buyer_consumer_key) { '3bdb5790692d06983d8cb0feb40365886631e52d' }
     let!(:seller_consumer_key) { '325ea5c0c3a7927280c54ed3ad310c02b45129d8' }
@@ -61,6 +61,23 @@ RSpec.describe Synapsis::Order do
         expect{ Synapsis::Order.add(order_params.merge(oauth_consumer_key: 'WRONG!')) }.to raise_error(Synapsis::Error).with_message('Error in OAuth Authentication.')
         expect{ Synapsis::Order.add(order_params.merge(amount: 0)) }.to raise_error(Synapsis::Error).with_message('Missing amount')
         expect{ Synapsis::Order.add(order_params.merge(seller_id: 0)) }.to raise_error(Synapsis::Error).with_message('Missing seller_id')
+      end
+    end
+  end
+
+  context '.poll' do
+    context 'happy path' do
+      it 'retrieves the order' do
+        order_id = 1398
+        polled_order_response = Synapsis::Order.poll(order_id: 1398)
+
+        FIRST_LEVEL_PARAMS = ['order', 'success']
+
+        FIRST_LEVEL_PARAMS.each do |param|
+          expect(polled_order_response).to respond_to(param)
+        end
+
+        expect(polled_order_response.order.status).not_to be_nil
       end
     end
   end

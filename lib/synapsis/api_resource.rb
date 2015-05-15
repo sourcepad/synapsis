@@ -1,4 +1,12 @@
 class Synapsis::APIResource
+  def self.request(method = :post, url, params)
+    Synapsis.connection.send(method) do |req|
+      req.headers['Content-Type'] = 'application/json'
+      req.url url
+      req.body = JSON.generate(params)
+    end
+  end
+
   def self.class_name
     name.partition('::').last.downcase
   end
