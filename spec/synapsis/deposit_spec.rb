@@ -12,10 +12,16 @@ RSpec.describe Synapsis::Deposit do
       it 'constructs the correct deposit object' do
         deposit_response = Synapsis::Deposit.create(deposit_params)
 
+        FIRST_LEVEL_PARAMS = ['deposit', 'reason', 'success']
+
         DEPOSIT_SPECIFIC_PARAMS = ['amount', 'bank', 'date_created', 'id', 'resource_uri', 'status', 'status_url', 'user_id']
 
-        (DEPOSIT_SPECIFIC_PARAMS - ['status_url']).each do |x|
-          expect(deposit_response.deposit.send(x.to_s.gsub('@', ''))).not_to be_nil
+        FIRST_LEVEL_PARAMS.each do |param|
+          expect(deposit_response).to respond_to(param)
+        end
+
+        DEPOSIT_SPECIFIC_PARAMS.each do |param|
+          expect(deposit_response.deposit).to respond_to(param)
         end
       end
     end

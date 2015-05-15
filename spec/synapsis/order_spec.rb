@@ -13,12 +13,19 @@ RSpec.describe Synapsis::Order do
 
     context 'happy path' do
       it 'constructs the correct Order object' do
-        order = Synapsis::Order.add(order_params)
+        order_response = Synapsis::Order.add(order_params)
 
-        ORDER_PARAMS = ['account_type', 'amount', 'date', 'date_settled', 'discount', 'facilitator_fee', 'fee', 'id', 'is_buyer', 'note', 'resource_uri', 'seller', 'status', 'status_uri', 'ticket_number', 'tip', 'total']
+        FIRST_LEVEL_PARAMS = ['balance_verified', 'order', 'success']
 
-        (ORDER_PARAMS - ['status_uri']).each do |x|
-          expect(order.order.send(x)).not_to be_nil
+        ORDER_PARAMS = ['account_type', 'amount', 'date', 'date_settled', 'discount', 'facilitator_fee', 'fee', 'id', 'is_buyer', 'note', 'resource_uri', 'seller', 'status', 'status_url', 'ticket_number', 'tip', 'total']
+
+
+        FIRST_LEVEL_PARAMS.each do |param|
+          expect(order_response).to respond_to(param)
+        end
+
+        ORDER_PARAMS.each do |x|
+          expect(order_response.order).to respond_to(x)
         end
       end
 
@@ -26,20 +33,20 @@ RSpec.describe Synapsis::Order do
         buyer_account_balance = Synapsis::User.view(buyer_consumer_key).user.balance
         seller_account_balance = Synapsis::User.view(seller_consumer_key).user.balance
 
-        order = Synapsis::Order.add(order_params)
+        order_response = Synapsis::Order.add(order_params)
 
         new_buyer_account_balance = Synapsis::User.view(buyer_consumer_key).user.balance
         new_seller_account_balance = Synapsis::User.view(seller_consumer_key).user.balance
 
         expect(new_buyer_account_balance).to be_within(delta).of(buyer_account_balance - order_params[:amount])
-        expect(new_seller_account_balance).to be_within(seller_account_balance + order_params[:amount] - Synapsis::Order.synapse_fee(order_params[:amount]))
+        expect(new_seller_account_balance).to be_within(delta).of(seller_account_balance + order_params[:amount] - Synapsis::Order.synapse_fee(order_params[:amount]))
       end
 
-      it 'subtracts the money from the consumer\'s account and adds to the seller\'s account, with a charge of ' do
+      it 'subtracts the money from the consumer\'s account and adds to the seller\'s account, with a charge of 0.25 if amount is greater than $10' do
         buyer_account_balance = Synapsis::User.view(buyer_consumer_key).user.balance
         seller_account_balance = Synapsis::User.view(seller_consumer_key).user.balance
 
-        order = Synapsis::Order.add(order_params.merge(amount: 10.1))
+        order_response = Synapsis::Order.add(order_params.merge(amount: 10.1))
 
         new_buyer_account_balance = Synapsis::User.view(buyer_consumer_key).user.balance
         new_seller_account_balance = Synapsis::User.view(seller_consumer_key).user.balance
@@ -49,7 +56,7 @@ RSpec.describe Synapsis::Order do
       end
     end
 
-    context 'no amount specified' do
+    context 'errors' do
       it 'raises a Synapsis::Error' do
         expect{ Synapsis::Order.add(order_params.merge(oauth_consumer_key: 'WRONG!')) }.to raise_error(Synapsis::Error).with_message('Error in OAuth Authentication.')
         expect{ Synapsis::Order.add(order_params.merge(amount: 0)) }.to raise_error(Synapsis::Error).with_message('Missing amount')

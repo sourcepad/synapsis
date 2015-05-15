@@ -12,10 +12,16 @@ RSpec.describe Synapsis::Withdrawal do
       it 'constructs the correct Withdrawal object' do
         withdrawal_response = Synapsis::Withdrawal.create(withdrawal_params)
 
+        FIRST_LEVEL_PARAMS = ['balance', 'is_mfa', 'reason', 'success', 'withdrawal']
+
         WITHDRAWAL_SPECIFIC_PARAMS = ['amount', 'bank', 'date_created', 'fee', 'id', 'instant_credit', 'resource_uri', 'status', 'status_url', 'user_id']
 
-        (WITHDRAWAL_SPECIFIC_PARAMS - ['status_url']).each do |x|
-          expect(withdrawal_response.withdrawal.send(x.to_s.gsub('@', ''))).not_to be_nil
+        FIRST_LEVEL_PARAMS.each do |param|
+          expect(withdrawal_response).to respond_to(param)
+        end
+
+        WITHDRAWAL_SPECIFIC_PARAMS.each do |param|
+          expect(withdrawal_response.withdrawal).to respond_to(param)
         end
       end
     end
