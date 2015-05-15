@@ -80,4 +80,23 @@ RSpec.describe Synapsis::User do
       end
     end
   end
+
+  describe '.view_linked_banks' do
+    context 'happy path' do
+      it 'shows the user\'s balance and linked banks' do
+        token = 'da2e45d5665551667ba6e08292407b56daa6ea43'
+        synapse_response = Synapsis::User.view_linked_banks(token)
+
+        expect(synapse_response).to respond_to(:balance)
+        expect(synapse_response).to respond_to(:banks)
+      end
+    end
+    context 'authentication error' do
+      it 'raises an Error' do
+        oauth_token = 'WRONG!!!'
+
+        expect { Synapsis::User.view_linked_banks(oauth_token) }.to raise_error(Synapsis::Error).with_message('Error in OAuth Authentication.')
+      end
+    end
+  end
 end

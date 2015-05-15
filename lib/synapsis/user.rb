@@ -19,6 +19,16 @@ class Synapsis::User < Synapsis::APIResource
     return_response(response)
   end
 
+  def self.view_linked_banks(oauth_token)
+    response = Synapsis.connection.post do |req|
+      req.headers['Content-Type'] = 'application/json'
+      req.url "#{API_V2_PATH}bank/show/"
+      req.body = JSON.generate('oauth_consumer_key' => oauth_token)
+    end
+
+    return_response(response)
+  end
+
   private
 
   def self.client_credentials
