@@ -1,10 +1,6 @@
 module Synapsis::APIOperations::Create
   def create_request(params)
-    Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url create_url
-      req.body = JSON.generate(params)
-    end
+    request(:post, create_url, params)
   end
 
   def create_url

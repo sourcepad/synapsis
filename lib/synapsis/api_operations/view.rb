@@ -1,10 +1,6 @@
 module Synapsis::APIOperations::View
   def view_request(params)
-    Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url view_url
-      req.body = JSON.generate(params)
-    end
+    request(:post, view_url, params)
   end
 
   def view_url

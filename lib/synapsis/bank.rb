@@ -1,6 +1,7 @@
 class Synapsis::Bank < Synapsis::APIResource
   include Synapsis::Utilities
   extend Synapsis::APIOperations::Create
+  extend Synapsis::APIOperations::View
 
   module AccountClass
     PERSONAL = 1
@@ -37,13 +38,9 @@ class Synapsis::Bank < Synapsis::APIResource
     return_response(added_bank)
   end
 
-  def self.link(params)
-    partially_linked_bank = Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}bank/login/?is_dev=yes"
-      req.body = JSON.generate(params)
-    end
 
+  def self.link(params)
+    partially_linked_bank = request(:post, bank_link_url, params)
     parsed_partially_linked_bank = parse_as_synapse_resource(partially_linked_bank)
 
     if parsed_partially_linked_bank.success
@@ -53,15 +50,10 @@ class Synapsis::Bank < Synapsis::APIResource
 
       @access_token = parsed_partially_linked_bank.response.access_token
 
-      new_bank =  Synapsis.connection.post do |req|
-        req.headers['Content-Type'] = 'application/json'
-        req.url "#{API_V2_PATH}bank/mfa/?is_dev=yes"
-        req.body = JSON.generate(params.merge(access_token: @access_token))
-      end
-
+      new_bank = request(:post, bank_mfa_url, params.merge(access_token: @access_token))
       parsed_new_bank = parse_as_synapse_resource(new_bank)
 
-      if parsed_new_bank.banks
+      if parsed_new_bank.banks # SynapseAPI will return an array of the banks if the MFA process was successful
         return parsed_new_bank
       else
         raise Synapsis::Error, 'Wrong MFA answer.'
@@ -71,28 +63,32 @@ class Synapsis::Bank < Synapsis::APIResource
     end
   end
 
-  def self.view_linked_banks(params)
-    self.new(params).view_linked_banks
-  end
-
-  def self.remove(bank_id, oauth_consumer_key)
-    response =  Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}bank/delete/"
-      req.body = JSON.generate(
-        bank_id: bank_id,
-        oauth_consumer_key: oauth_consumer_key
-      )
-    end
-
+  def self.view_linked_banks(oauth_token)
+    response = view_request(oauth_consumer_key: oauth_token)
     return_response(response)
   end
 
-  def view_linked_banks
-    Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url "#{API_V2_PATH}bank/show/"
-      req.body = build_json_from_variable_hash
-    end
+  def self.remove(bank_id, oauth_consumer_key)
+    params = {
+      bank_id: bank_id,
+      oauth_consumer_key: oauth_consumer_key
+    }
+
+    response = request(:post, bank_delete_url, params)
+    return_response(response)
+  end
+
+  private
+
+  def self.bank_link_url
+    "#{API_V2_PATH}bank/login/?is_dev=yes"
+  end
+
+  def self.bank_mfa_url
+    "#{API_V2_PATH}bank/mfa/?is_dev=yes"
+  end
+
+  def self.bank_delete_url
+    "#{API_V2_PATH}bank/delete/"
   end
 end

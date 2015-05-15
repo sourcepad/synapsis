@@ -1,10 +1,6 @@
 module Synapsis::APIOperations::Edit
   def edit_request(params)
-    Synapsis.connection.post do |req|
-      req.headers['Content-Type'] = 'application/json'
-      req.url edit_url
-      req.body = JSON.generate(params)
-    end
+    request(:post, edit_url, params)
   end
 
   def edit_url

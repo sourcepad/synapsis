@@ -91,6 +91,7 @@ RSpec.describe Synapsis::User do
         expect(synapse_response).to respond_to(:banks)
       end
     end
+
     context 'authentication error' do
       it 'raises an Error' do
         oauth_token = 'WRONG!!!'
