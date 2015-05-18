@@ -15,8 +15,7 @@ class Synapsis::User < Synapsis::APIResource
   end
 
   def self.view(oauth_token)
-    response = view_request('oauth_consumer_key' => oauth_token)
-    return_response(response)
+    show('oauth_consumer_key' => oauth_token)
   end
 
   def self.view_linked_banks(oauth_token)
