@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe Synapsis::MassPay do
   let!(:users_consumer_key) { 'dcd234d9d9fb55ad9711c4c41e254868ef3768d4' }
-  describe '.add' do
+  describe '.add and .cancel' do
     # These tests might fail if the guy runs out of money
     context 'happy path' do
       let!(:delta) { 0.001 }
@@ -32,7 +32,15 @@ RSpec.describe Synapsis::MassPay do
 
         expect(mass_pay_response).to respond_to(:mass_pays)
         expect(mass_pay_response.mass_pays.count).to eq 2
+        expect(mass_pay_response.mass_pays.first.status).to eq Synapsis::MassPay::Status::CREATED
         expect(mass_pay_response).to respond_to(:success)
+
+        deleted_mass_pay_response = Synapsis::MassPay.cancel(
+          id: mass_pay_response.mass_pays.first.id,
+          oauth_consumer_key: users_consumer_key
+        )
+
+        expect(deleted_mass_pay_response.mass_pays.first.status).to eq Synapsis::MassPay::Status::CANCELLED
       end
 
       it 'deducts the user\'s account by the total amount plus 0.1 per mass pay' do
