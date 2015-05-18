@@ -1,15 +1,16 @@
 require 'spec_helper'
 
 RSpec.describe Synapsis::Order do
+  let!(:buyer_consumer_key) { '3bdb5790692d06983d8cb0feb40365886631e52d' }
+  let!(:seller_consumer_key) { '325ea5c0c3a7927280c54ed3ad310c02b45129d8' }
+  let!(:order_params) {{
+    amount: 1,
+    oauth_consumer_key: buyer_consumer_key,
+    seller_id: 3437
+  }}
+
   context '.add' do
     let!(:delta) { 0.001 }
-    let!(:buyer_consumer_key) { '3bdb5790692d06983d8cb0feb40365886631e52d' }
-    let!(:seller_consumer_key) { '325ea5c0c3a7927280c54ed3ad310c02b45129d8' }
-    let!(:order_params) {{
-      amount: 1,
-      oauth_consumer_key: buyer_consumer_key,
-      seller_id: 3437
-    }}
 
     context 'happy path' do
       it 'constructs the correct Order object' do
@@ -18,7 +19,6 @@ RSpec.describe Synapsis::Order do
         FIRST_LEVEL_PARAMS = ['balance_verified', 'order', 'success']
 
         ORDER_PARAMS = ['account_type', 'amount', 'date', 'date_settled', 'discount', 'facilitator_fee', 'fee', 'id', 'is_buyer', 'note', 'resource_uri', 'seller', 'status', 'status_url', 'ticket_number', 'tip', 'total']
-
 
         FIRST_LEVEL_PARAMS.each do |param|
           expect(order_response).to respond_to(param)
@@ -78,6 +78,32 @@ RSpec.describe Synapsis::Order do
         end
 
         expect(polled_order_response.order.status).not_to be_nil
+      end
+    end
+  end
+
+  context '.void' do
+    context 'happy path' do
+      it 'voids an order' do
+        existing_order_id = Synapsis::Order.add(order_params).order.id
+
+        voided_order_response = Synapsis::Order.void(
+          order_id: existing_order_id,
+          oauth_consumer_key: seller_consumer_key
+        )
+
+        expect(voided_order_response.order.status).to eq Synapsis::Order::Status::CANCELLED
+      end
+    end
+
+    context 'errors' do
+      it 'raises an error' do
+        existing_order_id = Synapsis::Order.add(order_params).order.id
+
+        expect{ Synapsis::Order.void(
+          order_id: existing_order_id,
+          oauth_consumer_key: buyer_consumer_key
+        ) }.to raise_error(Synapsis::Error).with_message('cannot void this order')
       end
     end
   end
