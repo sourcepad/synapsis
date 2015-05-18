@@ -15,7 +15,7 @@ class Synapsis::User < Synapsis::APIResource
   end
 
   def self.view(oauth_token)
-    view_request('oauth_consumer_key' => oauth_token)
+    response = view_request('oauth_consumer_key' => oauth_token)
     return_response(response)
   end
 
