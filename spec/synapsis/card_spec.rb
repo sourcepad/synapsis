@@ -25,7 +25,7 @@ RSpec.describe Synapsis::Card do
     end
   end
 
-  context '.show' do
+  describe '.show' do
     context 'without id parameter' do
       context 'happy path' do
         it 'shows all of the user\'s cards' do
@@ -38,6 +38,53 @@ RSpec.describe Synapsis::Card do
           expect(shown_card_response).to respond_to(:cards)
           expect(shown_card_response.obj_count).to be > 1
         end
+      end
+    end
+  end
+
+  describe '.edit' do
+    let!(:edit_card_params) {{
+      oauth_consumer_key: users_consumer_key,
+      id: 483,
+      legal_name: Faker::Name.name,
+      account_number: "11111111#{rand(1..9)}#{rand(1..9)}",
+      routing_number: "1210003#{rand(1..9)}#{rand(1..9)}",
+      account_class: rand(1..2),
+      account_type: rand(1..2)
+    }}
+
+    context 'happy path' do
+      it 'edits the card' do
+        edited_card_response = Synapsis::Card.edit(edit_card_params)
+
+        [:account_class, :account_type].each do |param|
+          expect(edited_card_response.card.send(param)).to eq edit_card_params[param]
+        end
+
+        expect(edited_card_response.card.account_number_string).to include edit_card_params[:account_number][-1, 2] # Since only last 2 digits are saved we ensure that the account numbers and routing numbers are actually changed
+        expect(edited_card_response.card.routing_number_string).to include edit_card_params[:routing_number][-1, 2] # Since only last 2 digits are saved we ensure that the account numbers and routing numbers are actually changed
+        expect(edited_card_response.card.name_on_account).to eq edit_card_params[:legal_name]
+      end
+    end
+
+    context 'wrong parameters' do
+      it 'raises errors' do
+        # Wrong OAuth consumer key
+        expect { Synapsis::Card.edit(edit_card_params.merge(oauth_consumer_key: 'WRONG')) }.to raise_error(Synapsis::Error).with_message('Error in OAuth Authentication.')
+
+        # User does not own the card
+        expect { Synapsis::Card.edit(edit_card_params.merge(id: 5)) }.to raise_error(Synapsis::Error).with_message('Card not found')
+
+        # Wrong account class
+        expect { Synapsis::Card.edit(edit_card_params.merge(account_class: 'WRONG')) }.to raise_error(Synapsis::Error).with_message('Sorry, this request could not be processed. Please try again later.')
+      end
+
+      xit 'doesn\'t raise errors on invalid account numbers and routing numbers' do
+        # Invalid account number DOES NOT RAISE AN ERROR
+        expect { Synapsis::Card.edit(edit_card_params.merge(account_number: 'THIS IS NOT REAL')) }.to raise_error(Synapsis::Error).with_message('Error in OAuth Authentication.')
+
+        # Invalid account number DOES NOT RAISE AN ERROR
+        expect { Synapsis::Card.edit(edit_card_params.merge(routing_number: 'THIS IS NOT REAL')) }.to raise_error(Synapsis::Error).with_message('Error in OAuth Authentication.')
       end
     end
   end
