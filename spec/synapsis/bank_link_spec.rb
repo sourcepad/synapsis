@@ -25,7 +25,7 @@ RSpec.describe Synapsis::Bank do
 
           new_bank = Synapsis::Bank.link(bank_params)
 
-          expect(new_bank.banks.first.name_on_account).to eq user_params[:fullname]
+          expect(new_bank.banks.first.name_on_account.downcase).to eq user_params[:fullname].downcase
           expect(new_bank.banks.first.bank_name).to eq bank_params[:bank]
         end
       end

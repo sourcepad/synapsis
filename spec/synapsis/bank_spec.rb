@@ -29,7 +29,7 @@ RSpec.describe Synapsis::Bank do
 
       new_bank = Synapsis::Bank.add(bank_params)
       expect(new_bank.bank.name_on_account).to eq viewed_user.user.fullname
-      expect(new_bank.bank.nickname).to eq bank_params[:nickname]
+      expect(new_bank.bank.nickname.downcase).to eq bank_params[:nickname].downcase
 
       removed_bank = Synapsis::Bank.remove(new_bank.bank.id, random_persons_access_token)
 

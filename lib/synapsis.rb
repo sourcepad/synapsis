@@ -22,6 +22,7 @@ require "synapsis/deposit"
 require "synapsis/order"
 require "synapsis/card"
 require "synapsis/mass_pay"
+require "synapsis/bank_status"
 require "synapsis/error"
 
 API_V2_PATH = 'api/v2/'
