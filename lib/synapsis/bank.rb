@@ -1,5 +1,4 @@
 class Synapsis::Bank < Synapsis::APIResource
-  include Synapsis::Utilities
   extend Synapsis::APIOperations::Create
   extend Synapsis::APIOperations::View
 
@@ -37,7 +36,6 @@ class Synapsis::Bank < Synapsis::APIResource
     added_bank = create_request(params)
     return_response(added_bank)
   end
-
 
   def self.link(params)
     partially_linked_bank = request(:post, bank_link_url, params)
@@ -78,6 +76,18 @@ class Synapsis::Bank < Synapsis::APIResource
     return_response(response)
   end
 
+  # By default, the first added bank account is the primary one. If you add another bank it will not be set as the primary one unless it was deleted.
+  # When a bank account is deleted, if it was the primary bank account, the next bank account chronologically added will be set as the primary one.
+  def self.set_as_primary(bank_id:, oauth_consumer_key:)
+    params = {
+      bank_id: bank_id,
+      oauth_consumer_key: oauth_consumer_key
+    }
+
+    response = request(:post, set_bank_as_primary_url, params)
+    return_response(response)
+  end
+
   private
 
   def self.bank_link_url
@@ -88,7 +98,11 @@ class Synapsis::Bank < Synapsis::APIResource
     "#{API_V2_PATH}bank/mfa/?is_dev=yes"
   end
 
+  def self.set_bank_as_primary_url
+    "#{API_V2_PATH}bank/setprimary"
+  end
+
   def self.bank_delete_url
-    "#{API_V2_PATH}bank/delete/"
+    "#{API_V2_PATH}bank/delete"
   end
 end

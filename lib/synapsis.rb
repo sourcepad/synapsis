@@ -9,12 +9,10 @@ end
 
 # Internal dependencies
 require "synapsis/version"
-require "synapsis/utilities"
 require "synapsis/api_resource"
 require "synapsis/api_operations/create"
 require "synapsis/api_operations/edit"
 require "synapsis/api_operations/view"
-require "synapsis/authentication"
 require "synapsis/user"
 require "synapsis/bank"
 require "synapsis/withdrawal"

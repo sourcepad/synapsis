@@ -1,5 +1,4 @@
 class Synapsis::User < Synapsis::APIResource
-  include Synapsis::Utilities
   extend Synapsis::APIOperations::Create
   extend Synapsis::APIOperations::Edit
   extend Synapsis::APIOperations::View

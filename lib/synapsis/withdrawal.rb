@@ -1,5 +1,4 @@
 class Synapsis::Withdrawal < Synapsis::APIResource
-  include Synapsis::Utilities
   extend Synapsis::APIOperations::Create
   extend Synapsis::APIOperations::View
 

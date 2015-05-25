@@ -1,5 +1,4 @@
 class Synapsis::Order < Synapsis::APIResource
-  include Synapsis::Utilities
   extend Synapsis::APIOperations::Create
 
   module Status
