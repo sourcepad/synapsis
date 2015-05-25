@@ -19,6 +19,11 @@ class Synapsis::User < Synapsis::APIResource
     return_response(response)
   end
 
+  def self.refresh(params)
+    response = request(:post, refresh_url, params.merge(client_credentials))
+    return_response(response)
+  end
+
   def self.view_linked_banks(oauth_token)
     Synapsis::Bank.view_linked_banks(oauth_token)
   end
@@ -34,6 +39,10 @@ class Synapsis::User < Synapsis::APIResource
 
   def self.create_url
     "#{API_V2_PATH}user/create/"
+  end
+
+  def self.refresh_url
+    "#{API_V2_PATH}user/refresh"
   end
 end
 
