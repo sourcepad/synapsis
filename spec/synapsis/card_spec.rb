@@ -48,7 +48,7 @@ RSpec.describe Synapsis::Card do
       id: 483,
       legal_name: Faker::Name.name,
       account_number: "11111111#{rand(1..9)}#{rand(1..9)}",
-      routing_number: "1210003#{rand(1..9)}#{rand(1..9)}",
+      routing_number: get_random_routing_number,
       account_class: rand(1..2),
       account_type: rand(1..2)
     }}
@@ -76,7 +76,10 @@ RSpec.describe Synapsis::Card do
         expect { Synapsis::Card.edit(edit_card_params.merge(id: 5)) }.to raise_error(Synapsis::Error).with_message('Card not found')
 
         # Wrong account class
-        expect { Synapsis::Card.edit(edit_card_params.merge(account_class: 'WRONG')) }.to raise_error(Synapsis::Error).with_message('Sorry, this request could not be processed. Please try again later.')
+        expect { Synapsis::Card.edit(edit_card_params.merge(account_class: 'WRONG')) }.to raise_error(Synapsis::Error).with_message('account_class not supplied or incorrectly formatted')
+
+        # Wrong account type
+        expect { Synapsis::Card.edit(edit_card_params.merge(account_type: 'WRONG')) }.to raise_error(Synapsis::Error).with_message('account_type not supplied or incorrectly formatted')
       end
 
       xit 'doesn\'t raise errors on invalid account numbers and routing numbers' do

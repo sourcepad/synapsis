@@ -9,7 +9,7 @@ RSpec.describe Synapsis::MassPay do
       let!(:mass_pay_hash) {{
         legal_name: 'Test Person',
         account_number: '1111111112',
-        routing_number: '121000358',
+        routing_number: get_random_routing_number,
         amount: 1,
         trans_type: 0,
         account_class: 1,
@@ -18,7 +18,7 @@ RSpec.describe Synapsis::MassPay do
       let!(:mass_pay_hash2) {{
         legal_name: 'Test Person2',
         account_number: '1111111112',
-        routing_number: '121000359',
+        routing_number: get_random_routing_number,
         amount: 1,
         trans_type: 0,
         account_class: 1,
