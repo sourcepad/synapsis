@@ -27,6 +27,10 @@ class Synapsis::User < Synapsis::APIResource
     Synapsis::Bank.view_linked_banks(oauth_token)
   end
 
+  def self.view_recent_orders(params)
+    Synapsis::Order.view_recent_orders(params)
+  end
+
   private
 
   def self.client_credentials

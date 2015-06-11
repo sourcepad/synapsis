@@ -107,4 +107,14 @@ RSpec.describe Synapsis::Order do
       end
     end
   end
+
+  describe '.view_recent_orders' do
+    it 'views the recent orders' do
+      token = 'M9Ned3lWBokYMsdZcDLUBIFuOOmCyG1fYauuNpzT'
+      order_response = Synapsis::Order.view_recent(oauth_consumer_key: token)
+
+      expect(order_response.success).to be_truthy
+      expect(order_response).to respond_to(:orders)
+    end
+  end
 end

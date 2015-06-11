@@ -21,6 +21,12 @@ class Synapsis::Order < Synapsis::APIResource
     return_response(response)
   end
 
+  # oauth_consumer_key (required):, order_id:, supp_id:
+  def self.view_recent(params)
+    response = request(:post, view_recent_url, params)
+    return_response(response)
+  end
+
   # Consumer key of the seller
   def self.void(order_id:, oauth_consumer_key:)
     params = {
@@ -48,6 +54,10 @@ class Synapsis::Order < Synapsis::APIResource
 
   def self.void_url
     "#{API_V2_PATH}order/void"
+  end
+
+  def self.view_recent_url
+    "#{API_V2_PATH}order/recent"
   end
 end
 
