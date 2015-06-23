@@ -118,19 +118,16 @@ RSpec.describe Synapsis::MassPay do
           expect { Synapsis::MassPay.show(mass_pay_id: 721, oauth_consumer_key: 'WRONG KEY') }.to raise_error(Synapsis::Error).with_message('Error in OAuth Authentication.')
 
           # Bad ID
-          expect { Synapsis::MassPay.show(mass_pay_id: 'a', oauth_consumer_key: users_consumer_key) }.to raise_error(Synapsis::Error).with_message('Sorry, this request could not be processed. Please try again later.')
+          expect { Synapsis::MassPay.show(mass_pay_id: 'a', oauth_consumer_key: users_consumer_key) }.to raise_error(Synapsis::Error).with_message('id not formatted correctly.')
 
-          # If mass_pay_id isn't owned by the user, then return all the mass_pays of the user
-          expect(Synapsis::MassPay.show(mass_pay_id: 200, oauth_consumer_key: users_consumer_key)).to respond_to(:obj_count)
+          # No mass_pay_id argument: fails
+          expect { Synapsis::MassPay.show(oauth_consumer_key: users_consumer_key) }.to raise_error(Synapsis::Error).with_message('id not formatted correctly.')
+
+          # If mass_pay_id isn't owned by the user, Synapse's behavior is to return an array of empty mass_pays.
+          mass_pay_with_bad_id_but_is_integer = Synapsis::MassPay.show(mass_pay_id: 99999, oauth_consumer_key: users_consumer_key)
+
+          expect(mass_pay_with_bad_id_but_is_integer.mass_pays.count).to eq 0
         end
-      end
-    end
-
-    context 'without mass_pay_id argument' do
-      it 'returns all the user\'s mass_pays' do
-        mass_pay_response = Synapsis::MassPay.show(oauth_consumer_key: users_consumer_key)
-
-        expect(mass_pay_response.obj_count).to be > 1
       end
     end
   end

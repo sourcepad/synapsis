@@ -99,7 +99,22 @@ RSpec.describe Synapsis::Bank do
       end
 
       context 'errors' do
-        it 'bad username returns a SynapsisError' do
+        it 'bad username returns a SynapsisError--generic error (used Chase as an example)' do
+          new_user = Synapsis::User.create(user_params)
+
+          bank_params = {
+            username: 'WRONG USERNAME',
+            password: 'test1234',
+            pin: '1234',
+            oauth_consumer_key: new_user.access_token,
+            bank: 'Chase',
+            mfa: 'test_answer'
+          }
+
+          expect { Synapsis::Bank.link(bank_params) }.to raise_error(Synapsis::Error).with_message('The username or password provided were not correct.')
+        end
+
+        it 'bad username returns a SynapsisError--Ally bank specific error message' do
           new_user = Synapsis::User.create(user_params)
 
           bank_params = {
@@ -111,7 +126,7 @@ RSpec.describe Synapsis::Bank do
             mfa: 'test_answer'
           }
 
-          expect { Synapsis::Bank.link(bank_params) }.to raise_error(Synapsis::Error).with_message('Please Enter the Correct Username and Password')
+          expect { Synapsis::Bank.link(bank_params) }.to raise_error(Synapsis::Error).with_message('Problems logging in? You can go to the online banking login page at allybank.com and select Forgot Your Username or call us 24/7 for help. Mobile banking is not available to Ally Auto or Mortgage customers at this time.')
         end
 
         it 'bad mfa answer returns a SynapsisError' do

@@ -11,5 +11,7 @@ class Synapsis::Card < Synapsis::APIResource
   def self.show(params)
     view(params)
   end
+
+  # self.edit parameters: oauth_consumer_key, id, legal_name, account_number, routing_number, account_class, account_type
 end
 

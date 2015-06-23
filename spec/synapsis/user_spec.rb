@@ -16,7 +16,7 @@ RSpec.describe Synapsis::User do
       new_synapse_user = Synapsis::User.create(user_params)
 
       ['access_token', 'oauth_consumer_key', 'expires_in',
-       'reason', 'refresh_token', 'success', 'username', 'user_id'].each do |k|
+       'refresh_token', 'success', 'username', 'user_id'].each do |k|
         expect(new_synapse_user.send(k)).not_to be_nil
       end
     end

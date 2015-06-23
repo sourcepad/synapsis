@@ -80,7 +80,7 @@ RSpec.describe Synapsis::Bank do
           account_num: '1111111112',
           routing_num: '121000358',
           nickname: 'Sourcepad Bank',
-          oauth_consumer_key: new_user_response.access_token,
+          oauth_consumer_key: new_user_response.oauth_consumer_key,
           account_type: Synapsis::Bank::AccountType::CHECKING,
           account_class: Synapsis::Bank::AccountClass::PERSONAL
         }
@@ -89,7 +89,7 @@ RSpec.describe Synapsis::Bank do
         second_bank_response = Synapsis::Bank.add(bank_params)
         third_bank_response = Synapsis::Bank.add(bank_params)
 
-        set_bank_primary_response = Synapsis::Bank.set_as_primary(bank_id: second_bank_response.bank.id, oauth_consumer_key: new_user_response.access_token)
+        set_bank_primary_response = Synapsis::Bank.set_as_primary(bank_id: second_bank_response.bank.id, oauth_consumer_key: new_user_response.oauth_consumer_key)
 
         expect(set_bank_primary_response.success).to be_truthy
       end
