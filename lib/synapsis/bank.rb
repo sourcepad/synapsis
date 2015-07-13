@@ -66,6 +66,11 @@ class Synapsis::Bank < Synapsis::APIResource
     return_response(response)
   end
 
+  def self.view_bank(oauth_token:, bank_id: )
+    response = view_request(oauth_consumer_key: oauth_token, id: bank_id)
+    return_response(response)
+  end
+
   def self.remove(bank_id, oauth_consumer_key)
     params = {
       bank_id: bank_id,

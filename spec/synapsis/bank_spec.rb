@@ -11,7 +11,7 @@ RSpec.describe Synapsis::Bank do
     end
   end
 
-  context '.add/#remove' do
+  context '.add/.view_bank/#remove' do
     it 'adds and removes a bank account' do
       random_persons_access_token = 'dcd234d9d9fb55ad9711c4c41e254868ef3768d4'
 
@@ -30,6 +30,8 @@ RSpec.describe Synapsis::Bank do
       new_bank = Synapsis::Bank.add(bank_params)
       expect(new_bank.bank.name_on_account).to eq viewed_user.user.fullname
       expect(new_bank.bank.nickname.downcase).to eq bank_params[:nickname].downcase
+
+      viewed_bank = Synapsis::Bank.view_bank(oauth_token: random_persons_access_token, bank_id: new_bank.bank.id)
 
       removed_bank = Synapsis::Bank.remove(new_bank.bank.id, random_persons_access_token)
 
