@@ -31,6 +31,7 @@ module Synapsis
 
     def connection
       @connection ||= Faraday.new(url: synapse_url) do |faraday|
+        faraday.request  :multipart             # form-encode POST params
         faraday.request  :url_encoded             # form-encode POST params
         faraday.response :logger                  # log requests to STDOUT
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP

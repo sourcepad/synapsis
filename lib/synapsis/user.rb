@@ -45,6 +45,11 @@ class Synapsis::User < Synapsis::APIResource
     end
   end
 
+  def self.add_document(params)
+    response = request(:post, add_document_url, params.merge(attachment: Faraday::UploadIO.new(params[:attachment], 'image/jpeg')))
+    return_response(response)
+  end
+
   def self.view_linked_banks(oauth_token)
     Synapsis::Bank.view_linked_banks(oauth_token)
   end
@@ -76,6 +81,10 @@ class Synapsis::User < Synapsis::APIResource
 
   def self.verify_ssn_url
     "#{API_V2_PATH}user/ssn/answer"
+  end
+
+  def self.add_document_url
+    "#{API_V2_PATH}user/doc/add"
   end
 end
 

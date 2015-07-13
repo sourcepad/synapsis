@@ -145,6 +145,24 @@ RSpec.describe Synapsis::User do
     end
   end
 
+  describe '.add_document' do
+    context 'happy path' do
+      it 'shows the user\'s balance and linked banks' do
+        token = 'da2e45d5665551667ba6e08292407b56daa6ea43'
+
+        doc_params = {
+          attachment: 'spec/test_file.txt',
+          is_base_64: true,
+          oauth_consumer_key: token
+        }
+
+        successful_add_document_response = Synapsis::User.add_document(doc_params)
+
+        expect(successful_add_document_response.success).to eq true
+      end
+    end
+  end
+
   describe '.view_linked_banks' do
     context 'happy path' do
       it 'shows the user\'s balance and linked banks' do
