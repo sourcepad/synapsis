@@ -29,7 +29,7 @@ RSpec.describe Synapsis::Order do
         end
       end
 
-      xit 'pending due to a bug wherein the buyer\'s balance does not get decremented--subtracts the money from the consumer\'s account and adds to the seller\'s account' do
+      it 'pending due to a bug wherein the buyer\'s balance does not get decremented--subtracts the money from the consumer\'s account and adds to the seller\'s account' do
         buyer_account_balance = Synapsis::User.view(buyer_consumer_key).user.balance
         seller_account_balance = Synapsis::User.view(seller_consumer_key).user.balance
 

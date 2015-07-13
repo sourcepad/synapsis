@@ -23,6 +23,28 @@ class Synapsis::User < Synapsis::APIResource
     return_response(response)
   end
 
+  def self.add_ssn(params)
+    response = request(:post, add_ssn_url, params)
+
+    # Synapse incorrectly returns SSN validation fails as 200. Thus we have to override default return_reponse behavior
+    if parse_as_synapse_resource(response).success
+      return_response(response)
+    else
+      raise Synapsis::Error, parse_as_synapse_resource(response).reason
+    end
+  end
+
+  def self.verify(params)
+    response = request(:post, verify_ssn_url, params)
+
+    # Synapse incorrectly returns SSN validation fails as 200. Thus we have to override default return_reponse behavior
+    if parse_as_synapse_resource(response).success
+      return_response(response)
+    else
+      raise Synapsis::Error, parse_as_synapse_resource(response).reason
+    end
+  end
+
   def self.view_linked_banks(oauth_token)
     Synapsis::Bank.view_linked_banks(oauth_token)
   end
@@ -46,6 +68,14 @@ class Synapsis::User < Synapsis::APIResource
 
   def self.refresh_url
     "#{API_V2_PATH}user/refresh"
+  end
+
+  def self.add_ssn_url
+    "#{API_V2_PATH}user/ssn/add"
+  end
+
+  def self.verify_ssn_url
+    "#{API_V2_PATH}user/ssn/answer"
   end
 end
 
