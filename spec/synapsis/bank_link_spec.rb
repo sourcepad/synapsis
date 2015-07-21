@@ -94,7 +94,7 @@ RSpec.describe Synapsis::Bank do
 
         new_bank = Synapsis::Bank.link(bank_params)
 
-        expect(new_bank.banks.first.name_on_account).to eq user_params[:fullname]
+        expect(new_bank.banks.first.name_on_account).to eq 'Test User' # Synapse returns Test User
         expect(new_bank.banks.first.bank_name).to eq bank_params[:bank]
       end
 
@@ -160,7 +160,7 @@ RSpec.describe Synapsis::Bank do
           new_bank = Synapsis::Bank.link(bank_params)
 
           # Upcase since Synapse automatically downcases titles such as "MD, PHD" (it becomes Md or Phd)
-          expect(new_bank.banks.first.name_on_account.upcase).to eq user_params[:fullname].upcase
+          expect(new_bank.banks.first.name_on_account.upcase).to eq 'TEST USER'
           expect(new_bank.banks.first.bank_name).to eq bank_params[:bank]
         end
       end
