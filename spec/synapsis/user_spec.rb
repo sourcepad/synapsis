@@ -95,7 +95,7 @@ RSpec.describe Synapsis::User do
     }}
 
     context 'happy path' do
-      it 'SSN validations fails: return a Synapsis error' do
+      it 'returns success: true' do
         new_synapse_user = create_user
 
         SYNAPSE_SANDBOX_SSN_VALIDATION_SUCCEEDS_VALUE = '0000'
@@ -130,18 +130,35 @@ RSpec.describe Synapsis::User do
       end
     end
 
-    context 'verify ssn' do
-      xit 'need to consult with synapse re: verify SSN intended results' do
-        new_synapse_user = create_user
+    context '.verify_ssn' do
+      context 'happy path' do
+        it 'returns success: true' do
+          new_synapse_user = create_user
 
-        SYNAPSE_SANDBOX_SSN_VALIDATION_NEEDS_TO_BE_VERIFIED_VALUE = '3333'
+          SYNAPSE_SANDBOX_SSN_VALIDATION_NEEDS_TO_BE_VERIFIED_VALUE = '3333'
 
-        ssn_validation_succeeds_params = ssn_information.merge(oauth_consumer_key: new_synapse_user.oauth_consumer_key, ssn: SYNAPSE_SANDBOX_SSN_VALIDATION_NEEDS_TO_BE_VERIFIED_VALUE)
+          ssn_validation_succeeds_params = ssn_information.merge(oauth_consumer_key: new_synapse_user.oauth_consumer_key, ssn: SYNAPSE_SANDBOX_SSN_VALIDATION_NEEDS_TO_BE_VERIFIED_VALUE)
 
-        successful_add_ssn_response = Synapsis::User.add_ssn(ssn_validation_succeeds_params)
+          verifiable_ssn_response = Synapsis::User.add_ssn(ssn_validation_succeeds_params)
 
-        expect(successful_add_ssn_response.success).to eq true
+          verify_ssn_params = {
+            oauth_consumer_key: new_synapse_user.oauth_consumer_key,
+            questions: [
+              { question_id: 1, answer_id: 9},
+              { question_id: 2, answer_id: 2},
+              { question_id: 3, answer_id: 3},
+              { question_id: 4, answer_id: 4},
+              { question_id: 5, answer_id: 5}
+            ],
+            id: verifiable_ssn_response.question_set.id
+          }
+
+          successful_add_ssn_response = Synapsis::User.verify_ssn(verify_ssn_params)
+
+          expect(successful_add_ssn_response.success).to eq true
+        end
       end
+
     end
   end
 

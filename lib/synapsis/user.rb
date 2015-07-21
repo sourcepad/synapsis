@@ -34,7 +34,7 @@ class Synapsis::User < Synapsis::APIResource
     end
   end
 
-  def self.verify(params)
+  def self.verify_ssn(params)
     response = request(:post, verify_ssn_url, params)
 
     # Synapse incorrectly returns SSN validation fails as 200. Thus we have to override default return_reponse behavior
